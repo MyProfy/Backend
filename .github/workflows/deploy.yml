@@ -22,20 +22,14 @@ jobs:
 
             cd /var/www/Backend
 
-            echo "Fetching latest code..."
+            # Kodni aniq main holatiga olib kelish
             git fetch origin main
             git checkout main
             git reset --hard origin/main
             git clean -fd
 
-            echo "Rebuilding app container (without touching DB)..."
-            # Faqat backend service'ni yangilaymiz
-            docker compose pull backend || true
-            docker compose build backend --pull
-            docker compose up -d backend
-
-            echo "Cleaning unused images..."
-            docker image prune -f
-
-            echo "Current container status:"
+            docker compose down
+            docker compose pull || true     
+            docker compose build --pull
+            docker compose up -d
             docker compose ps
