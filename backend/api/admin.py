@@ -9,7 +9,7 @@ from import_export.formats import base_formats
 from .models import User, Category, SubCategory, Service, ServiceImage, ExecutorReview, Vacancy, VacancyImage, \
     ClientReview, BoostPayment, Order, OTP_table, Chat_table, ChatRoom, Message, Ad, Boost, ServiceBoost, VacancyBoost, \
     OrderReview
-import logging
+
 
 
 class PhoneFilter(SimpleListFilter):

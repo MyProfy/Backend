@@ -1,6 +1,16 @@
 import os
 from pathlib import Path
-from .env import SECRET_KEY,DEBUG,ALLOWED_HOSTS
+from .env import (
+    SECRET_KEY,
+    DEBUG,
+    ALLOWED_HOSTS,
+    POSTGRES_DB,
+    POSTGRES_USER,
+    POSTGRES_PASSWORD,
+    POSTGRES_HOST,
+    POSTGRES_PORT
+)
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = SECRET_KEY
@@ -66,10 +76,15 @@ ASGI_APPLICATION = 'config.asgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': POSTGRES_DB,
+        'USER': POSTGRES_USER,
+        'PASSWORD': POSTGRES_PASSWORD,
+        'HOST': POSTGRES_HOST,
+        'PORT': POSTGRES_PORT,
     }
 }
+
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -93,9 +108,16 @@ SECURE_SSL_REDIRECT = False
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
 USE_X_FORWARDED_PORT = True
-CSRF_TRUSTED_ORIGINS = ['https://myprofy.uz', 'https://www.myprofy.uz']
-CORS_ALLOWED_ORIGINS = ['https://myprofy.uz', 'https://www.myprofy.uz', "http://localhost:3001",
-                        "http://localhost:3000"]
+CSRF_TRUSTED_ORIGINS = [
+    'https://myprofy.uz',
+    'https://www.myprofy.uz'
+]
+CORS_ALLOWED_ORIGINS = [
+    'https://myprofy.uz',
+    'https://www.myprofy.uz',
+    "http://localhost:3001",
+    "http://localhost:3000"
+]
 CORS_ALLOW_CREDENTIALS = True
 CORS_EXPOSE_HEADERS = ['Set-Cookie', 'Content-Type', 'X-CSRFToken']
 
