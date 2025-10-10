@@ -22,20 +22,20 @@ jobs:
 
             cd /var/www/Backend
 
-            # Kodni aniq main holatiga olib kelish
+            echo "Fetching latest code..."
             git fetch origin main
             git checkout main
             git reset --hard origin/main
             git clean -fd
 
-            # Docker Compose bilan qayta ko'tarish
-            docker compose down
-            docker compose pull || true        # agar registry'dan tortsangiz
-            docker compose build --pull
-            docker compose up -d
+            echo "Rebuilding app container (without touching DB)..."
+            # Faqat backend service'ni yangilaymiz
+            docker compose pull backend || true
+            docker compose build backend --pull
+            docker compose up -d backend
 
-            # Ixtiyoriy: eski imagelarni tozalash
+            echo "Cleaning unused images..."
             docker image prune -f
 
-            # Holatini ko'rsatish
+            echo "Current container status:"
             docker compose ps
