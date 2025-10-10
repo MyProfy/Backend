@@ -2,7 +2,7 @@
 
 **/migrations/00**.py
 !**/migrations/__init__.py
-
+media/*
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
