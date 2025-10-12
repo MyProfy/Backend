@@ -32,7 +32,6 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'drf_spectacular',
     'phonenumber_field',
-    'core',
     'corsheaders',
     'django_prometheus',
     'payme',
