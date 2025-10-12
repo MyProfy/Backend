@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.html import format_html
 from django.utils import timezone
 from django.db.models import Case, When, Value, IntegerField
@@ -10,6 +11,11 @@ from .models import User, Category, SubCategory, Service, ServiceImage, Executor
     ClientReview, BoostPayment, Order, OTP_table, Chat_table, ChatRoom, Message, Ad, Boost, ServiceBoost, VacancyBoost, \
     OrderReview
 import logging
+
+from .forms import CustomUserCreationForm
+
+from unfold.admin import ModelAdmin
+from unfold.admin import TabularInline, StackedInline
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -114,14 +120,14 @@ class RatingFilter(SimpleListFilter):
 
 
 # Inline for SubCategory in Category
-class SubCategoryInline(admin.TabularInline):
+class SubCategoryInline(TabularInline):
     model = SubCategory
     extra = 1
-    fields = ('name',)
+    fields = ('title',)
 
 
 # Inline for Order in Service
-class OrderServiceInline(admin.TabularInline):
+class OrderServiceInline(TabularInline):
     model = Order
     extra = 1
     fields = ('client', 'executor', 'price', 'status', 'date_execution')
@@ -131,7 +137,7 @@ class OrderServiceInline(admin.TabularInline):
 
 
 # Inline for Order in Vacancy
-class OrderVacancyInline(admin.TabularInline):
+class OrderVacancyInline(TabularInline):
     model = Order
     extra = 1
     fields = ('client', 'executor', 'price', 'status', 'date_execution')
@@ -141,7 +147,7 @@ class OrderVacancyInline(admin.TabularInline):
 
 
 # Inline for Message in ChatRoom
-class MessageInline(admin.TabularInline):
+class MessageInline(TabularInline):
     model = Message
     extra = 1
     fields = ('sender', 'content', 'file', 'timestamp')
@@ -214,7 +220,10 @@ def export_to_excel(modeladmin, request, queryset, fields=None):
 
 # Custom admin for User
 @admin.register(User)
-class UserAdmin(admin.ModelAdmin):
+class UserAdmin(ModelAdmin, BaseUserAdmin):
+    add_form = CustomUserCreationForm
+    model = User
+    ordering = ('-created_at',)
     list_display = (
     'id', 'name', 'phone', 'email', 'role', 'region', 'executor_rating', 'client_rating', 'avatar_preview',
     'created_at')
@@ -238,8 +247,9 @@ class UserAdmin(admin.ModelAdmin):
         (None, {
             'classes': ('wide',),
             'fields': (
-            'phone', 'password1', 'password2', 'name', 'email', 'role', 'region', 'gender', 'telegram_username',
-            'avatar')
+                'phone', 'password1', 'password2', 'name', 'email',
+                'role', 'region', 'gender', 'telegram_username', 'avatar'
+            ),
         }),
     )
     actions = [export_to_excel]
@@ -257,14 +267,14 @@ class UserAdmin(admin.ModelAdmin):
 
 # Custom admin for Category
 @admin.register(Category)
-class CategoryAdmin(admin.ModelAdmin):
+class CategoryAdmin(ModelAdmin):
     list_display = ('id', 'title', 'display_ru', 'display_uz', 'service_count')
     list_filter = (CategoryNameFilter,)
-    search_fields = ('name', 'display_ru', 'display_uz')
+    search_fields = ('title', 'display_ru', 'display_uz')
     inlines = [SubCategoryInline]
     fieldsets = (
         (None, {
-            'fields': ('name', 'display_ru', 'display_uz')
+            'fields': ('title', 'display_ru', 'display_uz')
         }),
     )
     actions = [export_to_excel]
@@ -279,7 +289,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
 # Custom admin for SubCategory
 @admin.register(SubCategory)
-class SubCategoryAdmin(admin.ModelAdmin):
+class SubCategoryAdmin(ModelAdmin):
     list_display = ('id', 'title', 'display_ru', 'display_uz', 'category')
     list_filter = ('category',)
     search_fields = ('title', 'display_ru', 'display_uz')
@@ -295,7 +305,7 @@ class SubCategoryAdmin(admin.ModelAdmin):
 
 # Custom admin for Service
 @admin.register(Service)
-class ServiceAdmin(admin.ModelAdmin):
+class ServiceAdmin(ModelAdmin):
     list_display = (
     'id', 'title', 'category', 'price', 'executor', 'get_first_image', 'boost_priority_display', 'moderation')
     list_filter = (ServiceNameFilter, 'category', 'executor', 'moderation')
@@ -351,7 +361,7 @@ class ServiceAdmin(admin.ModelAdmin):
 
 # Custom admin for ServiceImage
 @admin.register(ServiceImage)
-class ServiceImageAdmin(admin.ModelAdmin):
+class ServiceImageAdmin(ModelAdmin):
     list_display = ('id', 'service', 'image_preview', 'uploaded_at')
     list_filter = ('uploaded_at',)
     search_fields = ('service__name',)
@@ -376,7 +386,7 @@ class ServiceImageAdmin(admin.ModelAdmin):
 
 # Custom admin for Vacancy
 @admin.register(Vacancy)
-class VacancyAdmin(admin.ModelAdmin):
+class VacancyAdmin(ModelAdmin):
     list_display = (
     'id', 'title', 'category', 'price', 'client', 'get_first_image', 'boost_priority_display', 'moderation')
     list_filter = (VacancyNameFilter, 'category', 'client', 'moderation')
@@ -432,7 +442,7 @@ class VacancyAdmin(admin.ModelAdmin):
 
 # Custom admin for VacancyImage
 @admin.register(VacancyImage)
-class VacancyImageAdmin(admin.ModelAdmin):
+class VacancyImageAdmin(ModelAdmin):
     list_display = ('id', 'vacancy', 'image_preview', 'uploaded_at')
     list_filter = ('uploaded_at',)
     search_fields = ('vacancy__name',)
@@ -457,7 +467,7 @@ class VacancyImageAdmin(admin.ModelAdmin):
 
 # Custom admin for Order
 @admin.register(Order)
-class OrderAdmin(admin.ModelAdmin):
+class OrderAdmin(ModelAdmin):
     list_display = ('id', 'service', 'vacancy', 'client', 'executor', 'date_order', 'status', 'price')
     list_filter = ('status', 'date_order', 'client', 'executor')
     search_fields = ('service__name', 'vacancy__name', 'client__name', 'executor__name')
@@ -473,7 +483,7 @@ class OrderAdmin(admin.ModelAdmin):
 
 
 @admin.register(OrderReview)
-class OrderReviewAdmin(admin.ModelAdmin):
+class OrderReviewAdmin(ModelAdmin):
     list_display = ('id', 'order', 'reviewer', 'rating', 'created_at')
     list_filter = ('rating', 'created_at')
     search_fields = ('order__id', 'reviewer__phone', 'review')
@@ -495,7 +505,7 @@ class OrderReviewAdmin(admin.ModelAdmin):
 
 # Custom admin for OTP_table
 @admin.register(OTP_table)
-class OTPAdmin(admin.ModelAdmin):
+class OTPAdmin(ModelAdmin):
     list_display = ('phone', 'code', 'created_at', 'expires_at')
     list_filter = ('created_at',)
     search_fields = ('phone', 'code')
@@ -514,7 +524,7 @@ class OTPAdmin(admin.ModelAdmin):
 
 # Custom admin for Chat_table
 @admin.register(Chat_table)
-class ChatTableAdmin(admin.ModelAdmin):
+class ChatTableAdmin(ModelAdmin):
     list_display = ('phone', 'chat_id')
     list_filter = (ChatPhoneFilter,)
     search_fields = ('phone', 'chat_id')
@@ -546,7 +556,7 @@ class ChatTableAdmin(admin.ModelAdmin):
 
 # Custom admin for ChatRoom
 @admin.register(ChatRoom)
-class ChatRoomAdmin(admin.ModelAdmin):
+class ChatRoomAdmin(ModelAdmin):
     list_display = ('name', 'user1', 'user2', 'created_at')
     list_filter = ('created_at', 'user1', 'user2')
     search_fields = ('name', 'user1__name', 'user2__name')
@@ -564,7 +574,7 @@ class ChatRoomAdmin(admin.ModelAdmin):
 
 # Custom admin for Message
 @admin.register(Message)
-class MessageAdmin(admin.ModelAdmin):
+class MessageAdmin(ModelAdmin):
     list_display = ('room', 'sender', 'content_preview', 'timestamp')
     list_filter = ('timestamp', 'sender')
     search_fields = ('content', 'sender__name', 'room__name')
@@ -586,7 +596,7 @@ class MessageAdmin(admin.ModelAdmin):
 
 # Custom admin for Ad
 @admin.register(Ad)
-class AdAdmin(admin.ModelAdmin):
+class AdAdmin(ModelAdmin):
     list_display = ('id', 'image_preview', 'start_date', 'end_date', 'region', 'link')
     list_filter = ('start_date', 'end_date')
     search_fields = ('region', 'link')
@@ -610,7 +620,7 @@ class AdAdmin(admin.ModelAdmin):
 
 # Custom admin for ExecutorReview
 @admin.register(ExecutorReview)
-class ExecutorReviewAdmin(admin.ModelAdmin):
+class ExecutorReviewAdmin(ModelAdmin):
     list_display = ('id', 'order', 'executor', 'client', 'rating', 'review_preview', 'created_at')
     list_filter = (RatingFilter, 'created_at', 'order', 'executor', 'client')
     search_fields = ('order__id', 'executor__name', 'client__name', 'review')
@@ -632,7 +642,7 @@ class ExecutorReviewAdmin(admin.ModelAdmin):
 
 # Custom admin for ClientReview
 @admin.register(ClientReview)
-class ClientReviewAdmin(admin.ModelAdmin):
+class ClientReviewAdmin(ModelAdmin):
     list_display = ('id', 'order', 'executor', 'client', 'rating', 'review_preview', 'created_at')
     list_filter = (RatingFilter, 'created_at', 'order', 'executor', 'client')
     search_fields = ('order__id', 'executor__name', 'client__name', 'review')
@@ -670,7 +680,7 @@ class BoostPaymentStatusFilter(SimpleListFilter):
 
 
 @admin.register(BoostPayment)
-class BoostPaymentAdmin(admin.ModelAdmin):
+class BoostPaymentAdmin(ModelAdmin):
     list_display = ('id', 'boost_payment_id', 'get_service_or_vacancy', 'boost', 'amount', 'status', 'created_at')
     list_filter = (BoostPaymentStatusFilter, 'created_at', 'boost_payment_id')
     search_fields = ('boost__name', 'service__name', 'vacancy__name')
@@ -700,7 +710,7 @@ class BoostPaymentAdmin(admin.ModelAdmin):
 
 # Custom admin for Boost
 @admin.register(Boost)
-class BoostAdmin(admin.ModelAdmin):
+class BoostAdmin(ModelAdmin):
     list_display = ('id', 'name', 'boost_type', 'duration_days', 'price', 'discount', 'applies_to')
     list_filter = ('boost_type', 'applies_to')
     search_fields = ('name',)
@@ -716,7 +726,7 @@ class BoostAdmin(admin.ModelAdmin):
 
 # Custom admin for ServiceBoost
 @admin.register(ServiceBoost)
-class ServiceBoostAdmin(admin.ModelAdmin):
+class ServiceBoostAdmin(ModelAdmin):
     list_display = ('id', 'service', 'boost', 'start_date', 'end_date', 'is_active')
     list_filter = ('is_active', 'start_date', 'end_date')
     search_fields = ('service__name', 'boost__name')
@@ -733,7 +743,7 @@ class ServiceBoostAdmin(admin.ModelAdmin):
 
 # Custom admin for VacancyBoost
 @admin.register(VacancyBoost)
-class VacancyBoostAdmin(admin.ModelAdmin):
+class VacancyBoostAdmin(ModelAdmin):
     list_display = ('id', 'vacancy', 'boost', 'start_date', 'end_date', 'is_active')
     list_filter = ('is_active', 'start_date', 'end_date')
     search_fields = ('vacancy__name', 'boost__name')
@@ -746,8 +756,3 @@ class VacancyBoostAdmin(admin.ModelAdmin):
     actions = [export_to_excel]
 
     export_to_excel.short_description = "Export selected to Excel"
-
-
-admin.site.site_header = "Myprofy Админ"
-admin.site.site_title = "Myprofy Админ-портал"
-admin.site.index_title = "Добро пожаловать в админку Myprofy"

@@ -183,6 +183,18 @@ CHANNEL_LAYERS = {
     },
 }
 
+UNFOLD = {
+    "SITE_TITLE": "MyProfy Admin",
+    "SITE_HEADER": "Админ-панель MyProfy",
+    "SITE_SUBHEADER": "Управление сервисом",
+    "SITE_SYMBOL": "💼",
+}
+
+INSTALLED_APPS += [
+    "unfold.contrib.filters",
+    "unfold.contrib.forms",
+]
+
 if DEBUG:
     SESSION_COOKIE_DOMAIN = None
     CSRF_COOKIE_DOMAIN = None

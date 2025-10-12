@@ -176,18 +176,19 @@ class Vacancy(models.Model):
         ('approved', 'Одобрено'),
         ('rejected', 'Отклонено'),
     ]
-    title = models.CharField(max_length=255)
-    description = models.CharField(max_length=512, null=True, blank=True)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='vacancies')
-    boost = models.ForeignKey('Boost', on_delete=models.CASCADE, null=True, blank=True)
-    sub_category = models.ForeignKey(SubCategory, on_delete=models.CASCADE, related_name='vacancies')
-    client = models.ForeignKey(User, on_delete=models.CASCADE, related_name='vacancies')
-    images = models.ImageField(upload_to='vacancies/')
+    title = models.CharField(max_length=255, verbose_name="Название")
+    description = models.CharField(max_length=512, null=True, blank=True, verbose_name="Описание")
+    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена")
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='vacancies', verbose_name="Категория")
+    boost = models.ForeignKey('Boost', on_delete=models.CASCADE, null=True, blank=True, verbose_name="Буст")
+    sub_category = models.ForeignKey(SubCategory, on_delete=models.CASCADE, related_name='vacancies', verbose_name="Подкатегория")
+    client = models.ForeignKey(User, on_delete=models.CASCADE, related_name='vacancies', verbose_name="Клиент")
+    images = models.ImageField(upload_to='vacancies/', verbose_name="Фотография")
     moderation = models.CharField(
         max_length=10,
         choices=MODERATION_STATUS,
-        default='pending'
+        default='pending',
+        verbose_name="Модерация"
     )
     class Meta:
         db_table = 'vacancies'
