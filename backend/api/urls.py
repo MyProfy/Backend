@@ -1,15 +1,12 @@
 from rest_framework.routers import DefaultRouter
+from django.urls import path, include
+from rest_framework_simplejwt.views import TokenRefreshView
 from .views import (
     UserViewSet, CategoryViewSet, SubCategoryViewSet, ServiceViewSet,
     ExecutorReviewViewSet, VacancyViewSet, ClientReviewViewSet, OrderViewSet,
-    PaymentViewSet, AdViewSet, OrderReviewsView, BoostViewSet, ServiceBoostViewSet, VacancyBoostViewSet
-)
-from django.urls import path, include
-from .views import (
-    RequestOTPView, VerifyOTPView, RegisterView, LoginView, logout,
-    check_auth, ping, CheckUserView, profile, ChatTableView,
-    ResetPasswordView, BoostPaymentCreateView, PaymeCallBackAPIView,
-    click_webhook, uzum_webhook
+    PaymentViewSet, AdViewSet, OrderReviewsView, BoostViewSet,
+    ServiceBoostViewSet, VacancyBoostViewSet,
+    RequestOTPView, VerifyOTPView, RegisterView, LoginView, LogoutView, CheckAuthView, BoostPaymentCreateView,
 )
 
 router = DefaultRouter()
@@ -31,19 +28,17 @@ router.register(r'vacancy-boosts', VacancyBoostViewSet, basename='vacancy-boosts
 urlpatterns = [
     path('', include(router.urls)),
 
-    path('otp/request/', RequestOTPView.as_view(), name='request-otp'),
-    path('otp/verify/', VerifyOTPView.as_view(), name='verify-otp'),
-    path('register/', RegisterView.as_view(), name='register'),
-    path('login/', LoginView.as_view(), name='login'),
-    path('logout/', logout, name='logout'),
-    path('check-auth/', check_auth, name='check-auth'),
-    path('ping/', ping, name='ping'),
-    path('check-user/', CheckUserView.as_view(), name='check-user'),
-    path('profile/', profile, name='profile'),
-    path('chat-table/', ChatTableView.as_view(), name='chat-table'),
-    path('reset-password/', ResetPasswordView.as_view(), name='reset-password'),
-    path('boost-payment-create/', BoostPaymentCreateView.as_view(), name='boost-payment-create'),
-    path('payme/callback/', PaymeCallBackAPIView.as_view(), name='payme-callback'),
-    path('click/webhook/', click_webhook, name='click-webhook'),
-    path('uzum/webhook/', uzum_webhook, name='uzum-webhook'),
+    # Payme
+    path('order/create/', BoostPaymentCreateView.as_view()),
+
+    # OTP
+    path('auth/otp/request/', RequestOTPView.as_view(), name='request-otp'),
+    path('auth/otp/verify/', VerifyOTPView.as_view(), name='verify-otp'),
+
+    # Auth
+    path('auth/register/', RegisterView.as_view(), name='register'),
+    path('auth/login/', LoginView.as_view(), name='login'),
+    path('auth/logout/', LogoutView.as_view(), name='logout'),
+    path('auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('auth/check/', CheckAuthView.as_view(), name='check-auth'),
 ]

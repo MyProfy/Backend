@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 from pathlib import Path
 from .env import (
     SECRET_KEY,
@@ -28,10 +29,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
+    'rest_framework_simplejwt.token_blacklist',
     'drf_spectacular',
     'phonenumber_field',
-    'api',
+    'core',
     'corsheaders',
+    'django_prometheus',
     'payme',
     'import_export',
 ]
@@ -139,7 +142,7 @@ CORS_EXPOSE_HEADERS = ['Set-Cookie', 'Content-Type', 'X-CSRFToken']
 PAYME_ID = "685d093f15461d903a41b09f"
 PAYME_KEY = "Za0Dx2cPp%%ZDnvbAPexFeyBacxx@G5OO2rD"
 PAYME_ACCOUNT_FIELD = "boost_payment_id"
-PAYME_AMOUNT_FIELD = "amount"
+PAYME_AMOUNT_FIELD = "price"
 PAYME_ACCOUNT_MODEL = "api.models.BoostPayment"
 PAYME_ONE_TIME_PAYMENT = True
 
@@ -155,6 +158,21 @@ PAYME_ONE_TIME_PAYMENT = True
 
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+    # 'DEFAULT_PERMISSION_CLASSES': [
+    #     'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    # ],
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "ROTATE_REFRESH_TOKENS": False,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "UPDATE_LAST_LOGIN": True,
 }
 
 CHANNEL_LAYERS = {
