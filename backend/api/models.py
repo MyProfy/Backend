@@ -346,7 +346,7 @@ class OrderReview(models.Model):
         return f"Отзыв на заказ #{self.order.id} от {self.reviewer.name}"
 
 class Ad(models.Model):
-    image = models.ImageField(upload_to='reklamas/', verbose_name="Ad Banner")
+    image = models.ImageField(upload_to='ads/', verbose_name="Ad Banner")
     start_date = models.DateTimeField(default=timezone.now, verbose_name="Start of Showing Ad")
     end_date = models.DateTimeField(default=get_default_end_date,
                                     verbose_name="End of Showing Ad")

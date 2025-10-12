@@ -9,9 +9,13 @@ from import_export.formats import base_formats
 from .models import User, Category, SubCategory, Service, ServiceImage, ExecutorReview, Vacancy, VacancyImage, \
     ClientReview, BoostPayment, Order, OTP_table, Chat_table, ChatRoom, Message, Ad, Boost, ServiceBoost, VacancyBoost, \
     OrderReview
+import logging
+
+# Set up logging
+logger = logging.getLogger(__name__)
 
 
-
+# Custom filter for User by phone number
 class PhoneFilter(SimpleListFilter):
     title = 'Phone Number'
     parameter_name = 'phone'
@@ -25,6 +29,7 @@ class PhoneFilter(SimpleListFilter):
         return queryset
 
 
+# Custom filter for Category by name
 class CategoryNameFilter(SimpleListFilter):
     title = 'Category Name'
     parameter_name = 'name'
@@ -38,6 +43,7 @@ class CategoryNameFilter(SimpleListFilter):
         return queryset
 
 
+# Custom filter for Service by name
 class ServiceNameFilter(SimpleListFilter):
     title = 'Service Name'
     parameter_name = 'name'
@@ -51,6 +57,7 @@ class ServiceNameFilter(SimpleListFilter):
         return queryset
 
 
+# Custom filter for Vacancy by name
 class VacancyNameFilter(SimpleListFilter):
     title = 'Vacancy Name'
     parameter_name = 'name'
@@ -64,6 +71,7 @@ class VacancyNameFilter(SimpleListFilter):
         return queryset
 
 
+# Custom filter for Chat_table by phone
 class ChatPhoneFilter(SimpleListFilter):
     title = 'Phone Number'
     parameter_name = 'phone'
@@ -77,6 +85,7 @@ class ChatPhoneFilter(SimpleListFilter):
         return queryset
 
 
+# Custom filter for Payment by status
 class PaymentStatusFilter(SimpleListFilter):
     title = 'Payment Status'
     parameter_name = 'status'
@@ -90,6 +99,7 @@ class PaymentStatusFilter(SimpleListFilter):
         return queryset
 
 
+# Custom filter for Rating
 class RatingFilter(SimpleListFilter):
     title = 'Rating'
     parameter_name = 'rating'
@@ -103,12 +113,14 @@ class RatingFilter(SimpleListFilter):
         return queryset
 
 
+# Inline for SubCategory in Category
 class SubCategoryInline(admin.TabularInline):
     model = SubCategory
     extra = 1
     fields = ('name',)
 
 
+# Inline for Order in Service
 class OrderServiceInline(admin.TabularInline):
     model = Order
     extra = 1
@@ -118,6 +130,7 @@ class OrderServiceInline(admin.TabularInline):
     can_delete = True
 
 
+# Inline for Order in Vacancy
 class OrderVacancyInline(admin.TabularInline):
     model = Order
     extra = 1
@@ -127,6 +140,7 @@ class OrderVacancyInline(admin.TabularInline):
     can_delete = True
 
 
+# Inline for Message in ChatRoom
 class MessageInline(admin.TabularInline):
     model = Message
     extra = 1
@@ -135,6 +149,7 @@ class MessageInline(admin.TabularInline):
     can_delete = True
 
 
+# Model-specific field definitions for export
 MODEL_EXPORT_FIELDS = {
     'User': ['id', 'name', 'phone', 'email', 'role', 'region', 'executor_rating', 'client_rating', 'created_at'],
     'Category': ['id', 'title', 'display_ru', 'display_uz'],
@@ -159,12 +174,15 @@ MODEL_EXPORT_FIELDS = {
 }
 
 
+# Generic function to export to Excel
 def export_to_excel(modeladmin, request, queryset, fields=None):
     model = modeladmin.model
     model_name = model.__name__
     fields = MODEL_EXPORT_FIELDS.get(model_name, fields or '__all__')
+    logger.debug(f"Exporting {model_name} with {queryset.count()} records")
 
     if not queryset.exists():
+        logger.warning(f"No records found for {model_name} export")
         response = HttpResponse(
             content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             headers={'Content-Disposition': f'attachment; filename="{model_name}.xlsx"'}
@@ -182,6 +200,9 @@ def export_to_excel(modeladmin, request, queryset, fields=None):
     resource = resource_class()
     dataset = resource.export(queryset)
 
+    if not dataset.dict:
+        logger.warning(f"Dataset for {model_name} is empty after export")
+
     response = HttpResponse(
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         headers={'Content-Disposition': f'attachment; filename="{model_name}.xlsx"'}
@@ -191,10 +212,12 @@ def export_to_excel(modeladmin, request, queryset, fields=None):
     return response
 
 
+# Custom admin for User
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'phone', 'email', 'role', 'region', 'executor_rating', 'client_rating',
-                    'avatar_preview', 'created_at')
+    list_display = (
+    'id', 'name', 'phone', 'email', 'role', 'region', 'executor_rating', 'client_rating', 'avatar_preview',
+    'created_at')
     list_filter = (PhoneFilter, 'role', 'region', 'gender')
     search_fields = ('name', 'phone', 'email', 'telegram_username')
     fieldsets = (
@@ -214,12 +237,13 @@ class UserAdmin(admin.ModelAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('phone', 'password1', 'password2', 'name', 'email', 'role', 'region', 'gender',
-                       'telegram_username', 'avatar')
+            'fields': (
+            'phone', 'password1', 'password2', 'name', 'email', 'role', 'region', 'gender', 'telegram_username',
+            'avatar')
         }),
     )
     actions = [export_to_excel]
-    export_exclude = ['password', 'avatar']
+    export_exclude = ['password', 'avatar']  # Exclude sensitive fields from export
 
     def avatar_preview(self, obj):
         if obj.avatar:
@@ -231,6 +255,7 @@ class UserAdmin(admin.ModelAdmin):
     export_to_excel.short_description = "Export selected to Excel"
 
 
+# Custom admin for Category
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'display_ru', 'display_uz', 'service_count')
@@ -252,6 +277,7 @@ class CategoryAdmin(admin.ModelAdmin):
     export_to_excel.short_description = "Export selected to Excel"
 
 
+# Custom admin for SubCategory
 @admin.register(SubCategory)
 class SubCategoryAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'display_ru', 'display_uz', 'category')
@@ -267,10 +293,11 @@ class SubCategoryAdmin(admin.ModelAdmin):
     export_to_excel.short_description = "Export selected to Excel"
 
 
+# Custom admin for Service
 @admin.register(Service)
 class ServiceAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title', 'category', 'price', 'executor', 'get_first_image', 'boost_priority_display',
-                    'moderation')
+    list_display = (
+    'id', 'title', 'category', 'price', 'executor', 'get_first_image', 'boost_priority_display', 'moderation')
     list_filter = (ServiceNameFilter, 'category', 'executor', 'moderation')
     search_fields = ('title', 'description')
     inlines = [OrderServiceInline]
@@ -335,7 +362,7 @@ class ServiceImageAdmin(admin.ModelAdmin):
     )
     readonly_fields = ('uploaded_at',)
     actions = [export_to_excel]
-    export_exclude = ['image']
+    export_exclude = ['image']  # Exclude image field from export
 
     def image_preview(self, obj):
         if obj.image:
@@ -347,10 +374,11 @@ class ServiceImageAdmin(admin.ModelAdmin):
     export_to_excel.short_description = "Export selected to Excel"
 
 
+# Custom admin for Vacancy
 @admin.register(Vacancy)
 class VacancyAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title', 'category', 'price', 'client', 'get_first_image', 'boost_priority_display',
-                    'moderation')
+    list_display = (
+    'id', 'title', 'category', 'price', 'client', 'get_first_image', 'boost_priority_display', 'moderation')
     list_filter = (VacancyNameFilter, 'category', 'client', 'moderation')
     search_fields = ('title', 'description')
     inlines = [OrderVacancyInline]
@@ -402,6 +430,7 @@ class VacancyAdmin(admin.ModelAdmin):
     export_to_excel.short_description = "Export selected to Excel"
 
 
+# Custom admin for VacancyImage
 @admin.register(VacancyImage)
 class VacancyImageAdmin(admin.ModelAdmin):
     list_display = ('id', 'vacancy', 'image_preview', 'uploaded_at')
@@ -414,7 +443,7 @@ class VacancyImageAdmin(admin.ModelAdmin):
     )
     readonly_fields = ('uploaded_at',)
     actions = [export_to_excel]
-    export_exclude = ['image']
+    export_exclude = ['image']  # Exclude image field from export
 
     def image_preview(self, obj):
         if obj.image:
@@ -426,6 +455,7 @@ class VacancyImageAdmin(admin.ModelAdmin):
     export_to_excel.short_description = "Export selected to Excel"
 
 
+# Custom admin for Order
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = ('id', 'service', 'vacancy', 'client', 'executor', 'date_order', 'status', 'price')
@@ -463,6 +493,7 @@ class OrderReviewAdmin(admin.ModelAdmin):
         return super().get_queryset(request).select_related('order', 'reviewer')
 
 
+# Custom admin for OTP_table
 @admin.register(OTP_table)
 class OTPAdmin(admin.ModelAdmin):
     list_display = ('phone', 'code', 'created_at', 'expires_at')
@@ -481,6 +512,7 @@ class OTPAdmin(admin.ModelAdmin):
     export_to_excel.short_description = "Export selected to Excel"
 
 
+# Custom admin for Chat_table
 @admin.register(Chat_table)
 class ChatTableAdmin(admin.ModelAdmin):
     list_display = ('phone', 'chat_id')
@@ -496,6 +528,23 @@ class ChatTableAdmin(admin.ModelAdmin):
     export_to_excel.short_description = "Export selected to Excel"
 
 
+# Custom admin for Payment
+# @admin.register(Payment)
+# class PaymentAdmin(admin.ModelAdmin):
+#     list_display = ('id', 'order', 'client', 'executor', 'date_order', 'status', 'amount', 'price')
+#     list_filter = (PaymentStatusFilter, 'date_order', 'client', 'executor')
+#     search_fields = ('order__id', 'client__name', 'executor__name')
+#     fieldsets = (
+#         (None, {
+#             'fields': ('order', 'client', 'executor', 'amount', 'price', 'status', 'date_execution')
+#         }),
+#     )
+#     readonly_fields = ('date_order',)
+#     actions = [export_to_excel]
+#
+#     export_to_excel.short_description = "Export selected to Excel"
+
+# Custom admin for ChatRoom
 @admin.register(ChatRoom)
 class ChatRoomAdmin(admin.ModelAdmin):
     list_display = ('name', 'user1', 'user2', 'created_at')
@@ -513,6 +562,7 @@ class ChatRoomAdmin(admin.ModelAdmin):
     export_to_excel.short_description = "Export selected to Excel"
 
 
+# Custom admin for Message
 @admin.register(Message)
 class MessageAdmin(admin.ModelAdmin):
     list_display = ('room', 'sender', 'content_preview', 'timestamp')
@@ -534,6 +584,7 @@ class MessageAdmin(admin.ModelAdmin):
     export_to_excel.short_description = "Export selected to Excel"
 
 
+# Custom admin for Ad
 @admin.register(Ad)
 class AdAdmin(admin.ModelAdmin):
     list_display = ('id', 'image_preview', 'start_date', 'end_date', 'region', 'link')
@@ -545,7 +596,7 @@ class AdAdmin(admin.ModelAdmin):
         }),
     )
     actions = [export_to_excel]
-    export_exclude = ['image']
+    export_exclude = ['image']  # Exclude image field from export
 
     def image_preview(self, obj):
         if obj.image:
@@ -557,6 +608,7 @@ class AdAdmin(admin.ModelAdmin):
     export_to_excel.short_description = "Export selected to Excel"
 
 
+# Custom admin for ExecutorReview
 @admin.register(ExecutorReview)
 class ExecutorReviewAdmin(admin.ModelAdmin):
     list_display = ('id', 'order', 'executor', 'client', 'rating', 'review_preview', 'created_at')
@@ -646,6 +698,7 @@ class BoostPaymentAdmin(admin.ModelAdmin):
     export_to_excel.short_description = "Export selected to Excel"
 
 
+# Custom admin for Boost
 @admin.register(Boost)
 class BoostAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'boost_type', 'duration_days', 'price', 'discount', 'applies_to')
@@ -661,6 +714,7 @@ class BoostAdmin(admin.ModelAdmin):
     export_to_excel.short_description = "Export selected to Excel"
 
 
+# Custom admin for ServiceBoost
 @admin.register(ServiceBoost)
 class ServiceBoostAdmin(admin.ModelAdmin):
     list_display = ('id', 'service', 'boost', 'start_date', 'end_date', 'is_active')
@@ -677,6 +731,7 @@ class ServiceBoostAdmin(admin.ModelAdmin):
     export_to_excel.short_description = "Export selected to Excel"
 
 
+# Custom admin for VacancyBoost
 @admin.register(VacancyBoost)
 class VacancyBoostAdmin(admin.ModelAdmin):
     list_display = ('id', 'vacancy', 'boost', 'start_date', 'end_date', 'is_active')

@@ -1,14 +1,14 @@
-# backend/api/auth.py
+# backend/core/auth.py
 from rest_framework.authentication import TokenAuthentication
 from rest_framework import exceptions
 from django.contrib.auth.models import User
-from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.backends import BaseBackend
 from django.contrib.auth import get_user_model
-
+import logging
 
 from rest_framework.authtoken.models import Token
 
+logger = logging.getLogger(__name__)
 
 User = get_user_model()
 
@@ -36,13 +36,16 @@ class PhoneBackend(BaseBackend):
 class TokenAndCookieAuthentication(TokenAuthentication):
     def authenticate(self, request):
         token_key = request.COOKIES.get('auth_token') or self.get_token_from_header(request)
+        logger.debug(f"Extracted token: {token_key}")
 
         if not token_key:
             return None
 
         try:
             user = self.authenticate_credentials(token_key)
+            logger.debug(f"Authenticated user: {user}")
         except exceptions.AuthenticationFailed as e:
+            logger.warning(f"Authentication failed: {e}")
             raise
 
     def get_token_from_header(self, request):

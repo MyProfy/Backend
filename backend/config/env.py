@@ -1,6 +1,8 @@
 import os
 from dotenv import load_dotenv
 
+from Backend.backend.config.settings import ALLOWED_HOSTS
+
 load_dotenv()
 
 SECRET_KEY = os.getenv('SECRET_KEY')
