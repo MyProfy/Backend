@@ -2,7 +2,7 @@ import random
 from datetime import timedelta
 from django.utils import timezone
 from rest_framework.exceptions import ValidationError
-from Backend.backend.api.models import OTP_table
+from api.models import OTP_table
 
 class OTPService:
     RESEND_TIMEOUT = 60
