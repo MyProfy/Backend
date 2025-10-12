@@ -116,7 +116,8 @@ CORS_ALLOWED_ORIGINS = [
     'https://myprofy.uz',
     'https://www.myprofy.uz',
     "http://localhost:3001",
-    "http://localhost:3000"
+    "http://localhost:3000",
+    "http://139.59.247.170:3000",
 ]
 CORS_ALLOW_CREDENTIALS = True
 CORS_EXPOSE_HEADERS = ['Set-Cookie', 'Content-Type', 'X-CSRFToken']
