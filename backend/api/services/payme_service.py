@@ -1,9 +1,9 @@
-from Backend.backend.config import settings
+from config import settings
 
 from payme import Payme
 from payme.models import PaymeTransactions
 
-from Backend.backend.api.models import Order
+from api.models import Order
 
 payme = Payme(
     payme_id=settings.PAYME_ID

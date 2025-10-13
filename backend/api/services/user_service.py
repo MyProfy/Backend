@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.exceptions import AuthenticationFailed, NotFound
 from rest_framework.exceptions import ValidationError
-from Backend.backend.api.models import OTP_table, User
+from api.models import OTP_table, User
 
 
 class UserService:
