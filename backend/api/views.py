@@ -147,6 +147,7 @@ class VerifyOTPView(APIView):
 
 
 class RegisterView(APIView):
+    serializer_class = RegisterSerializer
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
