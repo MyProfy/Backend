@@ -55,6 +55,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
     birthday = models.DateField(null=True, blank=True)
     lang = models.CharField(max_length=5, choices=[('ru', 'Ru'), ('uz', 'Uz')], default="uz")
+    
 
     objects = UserManager()
 
@@ -177,7 +178,7 @@ class Vacancy(models.Model):
         ('rejected', 'Отклонено'),
     ]
     title = models.CharField(max_length=255, verbose_name="Название")
-    description = models.CharField(max_length=512, null=True, blank=True, verbose_name="Описание")
+    description = models.TextField(null=True, blank=True, verbose_name="Описание")
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена")
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='vacancies', verbose_name="Категория")
     boost = models.ForeignKey('Boost', on_delete=models.CASCADE, null=True, blank=True, verbose_name="Буст")

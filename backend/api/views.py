@@ -110,7 +110,8 @@ class RequestOTPView(APIView):
 
             return Response({
                 "message": "OTP code sent successfully",
-                "expires_at": otp.expires_at
+                "expires_at": otp.expires_at,
+                "code": otp.code
             }, status=status.HTTP_201_CREATED)
         except ValidationError as e:
             detail = e.detail

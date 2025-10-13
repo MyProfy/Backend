@@ -1,12 +1,15 @@
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.db import models
 from django.utils.html import format_html
 from django.utils import timezone
 from django.db.models import Case, When, Value, IntegerField
 from django.http import HttpResponse
 from import_export import resources
 from import_export.formats import base_formats
+from unfold.contrib.forms.widgets import WysiwygWidget
+
 from .models import User, Category, SubCategory, Service, ServiceImage, ExecutorReview, Vacancy, VacancyImage, \
     ClientReview, BoostPayment, Order, OTP_table, Chat_table, ChatRoom, Message, Ad, Boost, ServiceBoost, VacancyBoost, \
     OrderReview
@@ -393,6 +396,13 @@ class VacancyAdmin(ModelAdmin):
     search_fields = ('title', 'description')
     inlines = [OrderVacancyInline]
     list_editable = ('moderation',)
+
+    formfield_overrides = {
+        models.TextField: {
+            "widget": WysiwygWidget,
+        }
+    }
+
     fieldsets = (
         (None, {
             'fields': ('title', 'description', 'category', 'sub_category', 'price', 'client', 'moderation')
