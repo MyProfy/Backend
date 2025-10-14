@@ -1,12 +1,15 @@
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.db import models
 from django.utils.html import format_html
 from django.utils import timezone
 from django.db.models import Case, When, Value, IntegerField
 from django.http import HttpResponse
 from import_export import resources
 from import_export.formats import base_formats
+from unfold.contrib.forms.widgets import WysiwygWidget
+
 from .models import User, Category, SubCategory, Service, ServiceImage, ExecutorReview, Vacancy, VacancyImage, \
     ClientReview, BoostPayment, Order, OTP_table, Chat_table, ChatRoom, Message, Ad, Boost, ServiceBoost, VacancyBoost, \
     OrderReview
@@ -157,7 +160,7 @@ class MessageInline(TabularInline):
 
 # Model-specific field definitions for export
 MODEL_EXPORT_FIELDS = {
-    'User': ['id', 'name', 'phone', 'email', 'role', 'region', 'executor_rating', 'client_rating', 'created_at'],
+    'User': ['id', 'name', 'phone', 'email', 'role', 'region', 'executor_rating', 'client_rating', 'orders_count', 'created_at'],
     'Category': ['id', 'title', 'display_ru', 'display_uz'],
     'SubCategory': ['id', 'title', 'display_ru', 'display_uz', 'category'],
     'Service': ['id', 'title', 'category', 'price', 'executor', 'moderation'],
@@ -226,7 +229,7 @@ class UserAdmin(ModelAdmin, BaseUserAdmin):
     ordering = ('-created_at',)
     list_display = (
     'id', 'name', 'phone', 'email', 'role', 'region', 'executor_rating', 'client_rating', 'avatar_preview',
-    'created_at')
+    'created_at', 'orders_count')
     list_filter = (PhoneFilter, 'role', 'region', 'gender')
     search_fields = ('name', 'phone', 'email', 'telegram_username')
     fieldsets = (
@@ -237,7 +240,7 @@ class UserAdmin(ModelAdmin, BaseUserAdmin):
             'fields': ('name', 'email', 'telegram_username', 'gender', 'region', 'about_user', 'avatar')
         }),
         ('Professional Info', {
-            'fields': ('role', 'work_experience', 'executor_rating', 'client_rating')
+            'fields': ('role', 'work_experience', 'executor_rating', 'client_rating', 'orders_count')
         }),
         ('Permissions', {
             'fields': ('is_staff', 'is_superuser')
@@ -393,6 +396,13 @@ class VacancyAdmin(ModelAdmin):
     search_fields = ('title', 'description')
     inlines = [OrderVacancyInline]
     list_editable = ('moderation',)
+
+    formfield_overrides = {
+        models.TextField: {
+            "widget": WysiwygWidget,
+        }
+    }
+
     fieldsets = (
         (None, {
             'fields': ('title', 'description', 'category', 'sub_category', 'price', 'client', 'moderation')

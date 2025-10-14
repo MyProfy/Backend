@@ -12,9 +12,9 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'id', 'phone', 'about_user', 'role', 'region',
+            'id', 'name', 'phone', 'about_user', 'role', 'region',
             'executor_rating', 'work_experience', 'email',  'client_rating', 'telegram_username',
-            'telegram_id', 'gender', 'avatar', 'birthday', 'lang', 'created_at'
+            'telegram_id', 'gender', 'avatar', 'birthday', 'lang', 'created_at', 'orders_count', 'is_trusted'
         ]
         read_only_fields = ['id', 'created_at', 'executor_rating', 'client_rating']
 
