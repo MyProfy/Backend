@@ -55,7 +55,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
     birthday = models.DateField(null=True, blank=True)
     lang = models.CharField(max_length=5, choices=[('ru', 'Ru'), ('uz', 'Uz')], default="uz")
-    
+    orders_count = models.IntegerField(verbose_name="Количество заказов", default=0, validators=[MinValueValidator(0)])
 
     objects = UserManager()
 
@@ -72,6 +72,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def has_perm(self, perm, obj=None):
         return self.is_superuser
+
+    def is_trusted(self) -> bool:
+        return self.orders_count > 3
 
     def has_module_perms(self, app_label):
         return self.is_superuser
