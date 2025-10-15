@@ -101,29 +101,46 @@ class RequestOTPView(APIView):
     def post(self, request):
         serializer = RequestOTPSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        phone = serializer.validated_data['phone']
+        phone = serializer.validated_data.get("phone")
 
         if not phone:
-            return Response({"error": "Phone number is required"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({
+                "success": False,
+                "message": "Пожалуйста, укажите номер телефона."
+            })
+
         try:
             otp = OTPService.create_otp(phone)
-
             return Response({
-                "message": "OTP code sent successfully",
-                "expires_at": otp.expires_at,
-                "code": otp.code
-            }, status=status.HTTP_201_CREATED)
+                "success": True,
+                "message": "Код подтверждения отправлен успешно 📩",
+                "data": {
+                    "expires_at": otp.expires_at,
+                    "code": otp.code,
+                }
+            }, status=status.HTTP_200_OK)
+
         except ValidationError as e:
             detail = e.detail
             if isinstance(detail, dict):
-                error_data = {
-                    "error": str(detail.get("error", "Validation error")),
-                    "seconds_left": detail.get("seconds_left", 0),
-                }
+                message = str(detail.get("error", "Не удалось отправить код."))
+                seconds_left = detail.get("seconds_left", 0)
+                return Response({
+                    "success": False,
+                    "message": f"Подождите {seconds_left} сек, прежде чем запросить новый код.",
+                    "data": {"seconds_left": seconds_left}
+                }, status=status.HTTP_200_OK)
             else:
-                error_data = {"error": str(detail)}
+                return Response({
+                    "success": False,
+                    "message": str(detail)
+                }, status=status.HTTP_200_OK)
 
-            return Response(error_data, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({
+                "success": False,
+                "message": "Произошла ошибка при отправке кода. Попробуйте позже."
+            }, status=status.HTTP_200_OK)
 
 class VerifyOTPView(APIView):
     def post(self, request):
