@@ -113,7 +113,7 @@ class RequestOTPView(APIView):
             otp = OTPService.create_otp(phone)
             return Response({
                 "success": True,
-                "message": "Код подтверждения отправлен успешно 📩",
+                "message": "Код подтверждения отправлен успешно",
                 "data": {
                     "expires_at": otp.expires_at,
                     "code": otp.code,
