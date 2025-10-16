@@ -36,26 +36,71 @@ class UserManager(BaseUserManager):
         return self.create_user(phone, email, password, **extra_fields)
 
 class User(AbstractBaseUser, PermissionsMixin):
+    REGIONS = [
+        ('Республика Каракалпакстан', 'Республика Каракалпакстан'),
+        ('Андижанская область', 'Андижанская область'),
+        ('Бухарская область', 'Бухарская область'),
+        ('Джизакская область', 'Джизакская область'),
+        ('Кашкадарьинская область', 'Кашкадарьинская область'),
+        ('Навоийская область', 'Навоийская область'),
+        ('Наманганская область', 'Наманганская область'),
+        ('Самаркандская область', 'Самаркандская область'),
+        ('Сырдарьинская область', 'Сырдарьинская область'),
+        ('Сурхандарьинская область', 'Сурхандарьинская область'),
+        ('Ташкентская область', 'Ташкентская область'),
+        ('Ферганская область', 'Ферганская область'),
+        ('Хорезмская область', 'Хорезмская область'),
+        ('Город Ташкент', 'Город Ташкент'),
+    ]
+
     name = models.CharField(max_length=255, blank=True, null=True)
     email = models.EmailField(unique=False, null=True, blank=True)
     phone = PhoneNumberField(unique=True)
     about_user = models.TextField(null=True, blank=True)
     work_experience = models.FloatField(null=True, blank=True)
-    role = models.CharField(max_length=50, choices=[('client', 'Client'), ('executor', 'Executor')], default='client')
+    role = models.CharField(
+        max_length=50,
+        choices=[('client', 'Client'), ('executor', 'Executor')],
+        default='client'
+    )
     password = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
-    region = models.CharField(max_length=100, null=True, blank=True)
+    region = models.CharField(
+        max_length=100,
+        choices=REGIONS,
+        null=True,
+        blank=True
+    )
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     telegram_username = models.CharField(max_length=255, null=True, blank=True)
     telegram_id = models.BigIntegerField(unique=True, null=True, blank=True)
-    gender = models.CharField(max_length=10, choices=[('male', 'Male'), ('female', 'Female')], null=True, blank=True)
-    executor_rating = models.FloatField(default=0.0, validators=[MinValueValidator(0.0), MaxValueValidator(5.0)])
-    client_rating = models.FloatField(default=0.0, validators=[MinValueValidator(0.0), MaxValueValidator(5.0)])
+    gender = models.CharField(
+        max_length=10,
+        choices=[('male', 'Male'), ('female', 'Female')],
+        null=True,
+        blank=True
+    )
+    executor_rating = models.FloatField(
+        default=0.0,
+        validators=[MinValueValidator(0.0), MaxValueValidator(5.0)]
+    )
+    client_rating = models.FloatField(
+        default=0.0,
+        validators=[MinValueValidator(0.0), MaxValueValidator(5.0)]
+    )
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
     birthday = models.DateField(null=True, blank=True)
-    lang = models.CharField(max_length=5, choices=[('ru', 'Ru'), ('uz', 'Uz')], default="ru")
-    orders_count = models.IntegerField(verbose_name="Количество заказов", default=0, validators=[MinValueValidator(0)])
+    lang = models.CharField(
+        max_length=5,
+        choices=[('ru', 'Ru'), ('uz', 'Uz')],
+        default="ru"
+    )
+    orders_count = models.IntegerField(
+        verbose_name="Количество заказов",
+        default=0,
+        validators=[MinValueValidator(0)]
+    )
 
     objects = UserManager()
 
@@ -73,11 +118,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     def has_perm(self, perm, obj=None):
         return self.is_superuser
 
-    def is_trusted(self) -> bool:
-        return self.orders_count > 3
-
     def has_module_perms(self, app_label):
         return self.is_superuser
+
+    def is_trusted(self) -> bool:
+        return self.orders_count > 3
 
     def update_ratings(self):
         # Calculate average executor rating

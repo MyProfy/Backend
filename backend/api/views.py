@@ -181,13 +181,16 @@ class RegisterView(APIView):
         serializer.is_valid(raise_exception=True)
 
         data = serializer.validated_data
+
         user = UserService.register_user(
             phone=data["phone"],
             password=data["password"],
             name=data.get("name"),
-            telegram_id=data.get("telegram_id", None),
-            telegram_username=data.get("telegram_username", None),
-            role=data.get("role", "client")
+            telegram_id=data.get("telegram_id"),
+            telegram_username=data.get("telegram_username"),
+            gender=data.get("gender"),
+            region=data.get("region"),
+            role=data.get("role", "client"),
         )
 
         return Response({
@@ -198,6 +201,8 @@ class RegisterView(APIView):
                 "name": user.name,
                 "telegram_id": user.telegram_id,
                 "telegram_username": user.telegram_username,
+                "gender": user.gender,
+                "region": user.region,
                 "role": user.role,
             }
         }, status=status.HTTP_201_CREATED)

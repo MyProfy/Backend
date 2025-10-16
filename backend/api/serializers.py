@@ -1,3 +1,5 @@
+from random import choices
+
 from rest_framework import serializers
 
 from payme.models import PaymeTransactions
@@ -199,7 +201,18 @@ class RegisterSerializer(serializers.Serializer):
     phone = PhoneNumberField()
     password = serializers.CharField(write_only=True)
     name = serializers.CharField(required=False, allow_blank=True)
-    role = serializers.ChoiceField(choices=[('client', 'Client'), ('executor', 'Executor')], default='client')
+    telegram_id = serializers.IntegerField(required=False, allow_null=True)
+    telegram_username = serializers.CharField(required=False, allow_blank=True)
+    gender = serializers.ChoiceField(
+        choices=[('male', 'Male'), ('female', 'Female')],
+        required=False,
+        allow_null=True
+    )
+    region = serializers.CharField(required=False, allow_blank=True)
+    role = serializers.ChoiceField(
+        choices=[('client', 'Client'), ('executor', 'Executor')],
+        default='client'
+    )
 
     def validate_phone(self, value):
         if User.objects.filter(phone=value).exists():
