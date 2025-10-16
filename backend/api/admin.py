@@ -227,36 +227,53 @@ class UserAdmin(ModelAdmin, BaseUserAdmin):
     add_form = CustomUserCreationForm
     model = User
     ordering = ('-created_at',)
+
     list_display = (
-    'id', 'name', 'phone', 'email', 'role', 'region', 'executor_rating', 'client_rating', 'avatar_preview',
-    'created_at', 'orders_count')
+        'id', 'name', 'phone', 'email', 'role', 'region',
+        'executor_rating', 'client_rating', 'avatar_preview',
+        'created_at', 'orders_count'
+    )
     list_filter = (PhoneFilter, 'role', 'region', 'gender')
     search_fields = ('name', 'phone', 'email', 'telegram_username')
+
     fieldsets = (
         (None, {
             'fields': ('phone', 'password')
         }),
         ('Personal Info', {
-            'fields': ('name', 'email', 'telegram_username', 'gender', 'region', 'about_user', 'avatar')
+            'fields': (
+                'name', 'email', 'telegram_username',
+                'gender', 'region', 'about_user', 'avatar'
+            )
         }),
         ('Professional Info', {
-            'fields': ('role', 'work_experience', 'executor_rating', 'client_rating', 'orders_count')
+            'fields': (
+                'role', 'work_experience',
+                'executor_rating', 'client_rating', 'orders_count'
+            )
         }),
         ('Permissions', {
-            'fields': ('is_staff', 'is_superuser')
+            'fields': (
+                'is_staff', 'is_superuser',
+                'groups', 'user_permissions'
+            )
         }),
     )
+
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
             'fields': (
                 'phone', 'password1', 'password2', 'name', 'email',
-                'role', 'region', 'gender', 'telegram_username', 'avatar'
+                'role', 'region', 'gender', 'telegram_username', 'avatar',
+                'is_staff', 'is_superuser',
+                'groups', 'user_permissions'
             ),
         }),
     )
+
     actions = [export_to_excel]
-    export_exclude = ['password', 'avatar']  # Exclude sensitive fields from export
+    export_exclude = ['password', 'avatar'] # Exclude sensitive fields from export
 
     def avatar_preview(self, obj):
         if obj.avatar:

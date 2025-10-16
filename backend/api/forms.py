@@ -1,11 +1,21 @@
-from django import forms
 from django.contrib.auth.forms import UserCreationForm
+from django.forms import PasswordInput
 from .models import User
 
 class CustomUserCreationForm(UserCreationForm):
     class Meta:
         model = User
         fields = ("phone", "password1", "password2", "name", "email")
+        widgets = {
+            "password1": PasswordInput(attrs={
+                "class": "unfold-input w-full",
+                "data-unfold-password-toggle": "true",  # <— магия unfold
+            }),
+            "password2": PasswordInput(attrs={
+                "class": "unfold-input w-full",
+                "data-unfold-password-toggle": "true",
+            }),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
