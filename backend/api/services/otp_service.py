@@ -9,7 +9,7 @@ class OTPService:
     OTP_LIFETIME = 120
 
     @staticmethod
-    def generate_code(length=6) -> str:
+    def generate_code(length=4) -> str:
         """6-digit code generation"""
         return ''.join(random.choices('0123456789', k=length))
 
