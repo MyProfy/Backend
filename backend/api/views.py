@@ -6,6 +6,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny
 
 from payme.views import PaymeWebHookAPIView
 
@@ -20,6 +21,8 @@ from .serializers import (
     ServiceBoostSerializer, VacancyBoostSerializer, RequestOTPSerializer, VerifyOTPSerializer, RegisterSerializer,
     LoginSerializer, ResetPasswordSerializer, OrderSerializer, PaymentSerializer
 )
+
+from .permissions import IsOrderOwner
 
 from .services.otp_service import OTPService
 from .services.payme_service  import PaymeService, payme
@@ -65,7 +68,10 @@ class ClientReviewViewSet(viewsets.ModelViewSet):
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticated, IsOrderOwner]
 
+    def get_queryset(self):
+        return Order.objects.filter(client=self.request.user)
 
 class PaymentViewSet(viewsets.ModelViewSet):
     queryset = PaymeTransactions.objects.all()
@@ -98,6 +104,7 @@ class VacancyBoostViewSet(viewsets.ModelViewSet):
 # --- APIViews ---
 
 class RequestOTPView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request):
         serializer = RequestOTPSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -143,6 +150,8 @@ class RequestOTPView(APIView):
             }, status=status.HTTP_200_OK)
 
 class VerifyOTPView(APIView):
+    permission_classes =  [AllowAny]
+
     def post(self, request):
         serializer = VerifyOTPSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -166,6 +175,7 @@ class VerifyOTPView(APIView):
 
 class RegisterView(APIView):
     serializer_class = RegisterSerializer
+    permission_classes = [AllowAny]
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -195,6 +205,7 @@ class RegisterView(APIView):
 
 class LoginView(APIView):
     serializer_class = LoginSerializer
+    permission_classes = [AllowAny]
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -232,11 +243,13 @@ class CheckAuthView(APIView):
 
 
 class PingView(APIView):
+    permission_classes = [AllowAny]
     def get(self, request):
         return Response({"status": "ok", "message": "pong"})
 
 
 class CheckUserView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request):
         phone = request.data.get("phone")
 
@@ -269,6 +282,7 @@ class ProfileView(APIView):
 
 
 class ResetPasswordView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request):
         serializer = ResetPasswordSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -284,6 +298,7 @@ class ResetPasswordView(APIView):
 
 
 class BoostPaymentCreateView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request):
         serializer = OrderSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -305,6 +320,7 @@ class BoostPaymentCreateView(APIView):
 
 
 class PaymeCallBackAPIView(PaymeWebHookAPIView):
+    permission_classes = [AllowAny]
     def check_perform_transaction(self, params):
         account = self.fetch_account(params)
         self.validate_amount(account, params.get('amount'))
