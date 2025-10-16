@@ -113,14 +113,14 @@ class RequestOTPView(APIView):
         if not phone:
             return Response({
                 "success": False,
-                "message": "Пожалуйста, укажите номер телефона."
+                "message": "Iltimos, telefon raqamingizni kiriting"
             })
 
         try:
             otp = OTPService.create_otp(phone)
             return Response({
                 "success": True,
-                "message": "Код подтверждения отправлен успешно",
+                "message": "Tasdiqlash kodi muvaffaqiyatli yuborildi",
                 "data": {
                     "expires_at": otp.expires_at,
                     "code": otp.code,
@@ -134,7 +134,7 @@ class RequestOTPView(APIView):
                 seconds_left = detail.get("seconds_left", 0)
                 return Response({
                     "success": False,
-                    "message": f"Подождите {seconds_left} сек, прежде чем запросить новый код.",
+                    "message": f"Yangi kodni so'rashdan oldin {seconds_left} soniya kuting.",
                     "data": {"seconds_left": seconds_left}
                 }, status=status.HTTP_200_OK)
             else:
@@ -146,7 +146,7 @@ class RequestOTPView(APIView):
         except Exception as e:
             return Response({
                 "success": False,
-                "message": "Произошла ошибка при отправке кода. Попробуйте позже."
+                "message": "Kodni yuborishda xatolik yuz berdi. Yana bir bor urinib ko'ring."
             }, status=status.HTTP_200_OK)
 
 class VerifyOTPView(APIView):
