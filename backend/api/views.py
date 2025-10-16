@@ -113,14 +113,14 @@ class RequestOTPView(APIView):
         if not phone:
             return Response({
                 "success": False,
-                "message": "Пожалуйста, укажите номер телефона."
+                "message": "Iltimos, telefon raqamingizni kiriting"
             })
 
         try:
             otp = OTPService.create_otp(phone)
             return Response({
                 "success": True,
-                "message": "Код подтверждения отправлен успешно",
+                "message": "Tasdiqlash kodi muvaffaqiyatli yuborildi",
                 "data": {
                     "expires_at": otp.expires_at,
                     "code": otp.code,
@@ -134,7 +134,7 @@ class RequestOTPView(APIView):
                 seconds_left = detail.get("seconds_left", 0)
                 return Response({
                     "success": False,
-                    "message": f"Подождите {seconds_left} сек, прежде чем запросить новый код.",
+                    "message": f"Yangi kodni so'rashdan oldin {seconds_left} soniya kuting.",
                     "data": {"seconds_left": seconds_left}
                 }, status=status.HTTP_200_OK)
             else:
@@ -146,7 +146,7 @@ class RequestOTPView(APIView):
         except Exception as e:
             return Response({
                 "success": False,
-                "message": "Произошла ошибка при отправке кода. Попробуйте позже."
+                "message": "Kodni yuborishda xatolik yuz berdi. Yana bir bor urinib ko'ring."
             }, status=status.HTTP_200_OK)
 
 class VerifyOTPView(APIView):
@@ -181,13 +181,16 @@ class RegisterView(APIView):
         serializer.is_valid(raise_exception=True)
 
         data = serializer.validated_data
+
         user = UserService.register_user(
             phone=data["phone"],
             password=data["password"],
             name=data.get("name"),
-            telegram_id=data.get("telegram_id", None),
-            telegram_username=data.get("telegram_username", None),
-            role=data.get("role", "client")
+            telegram_id=data.get("telegram_id"),
+            telegram_username=data.get("telegram_username"),
+            gender=data.get("gender"),
+            region=data.get("region"),
+            role=data.get("role", "client"),
         )
 
         return Response({
@@ -198,6 +201,8 @@ class RegisterView(APIView):
                 "name": user.name,
                 "telegram_id": user.telegram_id,
                 "telegram_username": user.telegram_username,
+                "gender": user.gender,
+                "region": user.region,
                 "role": user.role,
             }
         }, status=status.HTTP_201_CREATED)

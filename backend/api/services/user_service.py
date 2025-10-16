@@ -8,15 +8,18 @@ from api.models import OTP_table, User
 
 class UserService:
     @staticmethod
-    def register_user(phone: str,
-                      password: str,
-                      telegram_id: int = None,
-                      telegram_username: str = None,
-                      name: str = None,
-                      role: str = "client"):
+    def register_user(
+            phone: str,
+            password: str,
+            telegram_id: int = None,
+            telegram_username: str = None,
+            name: str = None,
+            gender: str = None,
+            region: str = None,
+            role: str = "client",
+    ):
         """Register user with verification OTP"""
 
-        # verification OTP
         otp = OTP_table.objects.filter(phone=phone).order_by('-created_at').first()
         if not otp:
             raise ValidationError("Сначала подтвердите номер телефона.")
@@ -27,17 +30,17 @@ class UserService:
         if User.objects.filter(phone=phone).exists():
             raise ValidationError("Пользователь с таким номером уже зарегистрирован.")
 
-        # Create user
         user = User.objects.create_user(
             phone=phone,
             password=password,
             name=name or "",
             telegram_id=telegram_id,
             telegram_username=telegram_username,
-            role=role
+            gender=gender,
+            region=region,
+            role=role,
         )
 
-        # Delete OTP (optional)
         otp.delete()
 
         return user
