@@ -88,7 +88,6 @@ DATABASES = {
     }
 }
 
-
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -103,7 +102,7 @@ USE_TZ = True
 
 APPEND_SLASH = True
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'static'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -179,12 +178,51 @@ CHANNEL_LAYERS = {
     },
 }
 
+STATICFILES_DIRS = [
+    BASE_DIR / 'backend' / 'static',  # 👈 твой путь
+]
+
 UNFOLD = {
-    "SITE_TITLE": "MyProfy Admin",
-    "SITE_HEADER": "Админ-панель MyProfy",
-    "SITE_SUBHEADER": "Управление сервисом",
-    "SITE_SYMBOL": "💼",
+    "THEME": "light",
+    "SITE_TITLE": "MyProfy Админ",
+    "SITE_HEADER": "MyProfy",
+    "SITE_SUBHEADER": "Панель управления",
+    "LOGO": {
+        "url": "/static/images/logo.png",
+        "alt": "MyProfy",
+    },
+    "COLORS": {
+        "primary": {
+            "50": "#f0fdf4",
+            "100": "#dcfce7",
+            "200": "#bbf7d0",
+            "300": "#86efac",
+            "400": "#4ade80",
+            "500": "#3da03f",
+            "600": "#2e7d32",
+            "700": "#15803d",
+            "800": "#166534",
+            "900": "#14532d",
+            "950": "#052e16",
+        },
+        "accent": {
+            "500": "#3da03f",
+        },
+        "neutral": {
+            "50": "#ffffff",  # ← белый фон
+            "100": "#ffffff",
+            "200": "#f8f9fa",
+            "300": "#f1f3f4",
+            "400": "#e9ecef",
+            "500": "#dee2e6",
+            "600": "#adb5bd",
+            "700": "#6c757d",
+            "800": "#495057",
+            "900": "#343a40",
+        },
+    },
 }
+
 
 INSTALLED_APPS += [
     "unfold.contrib.filters",
