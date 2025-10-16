@@ -54,7 +54,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     client_rating = models.FloatField(default=0.0, validators=[MinValueValidator(0.0), MaxValueValidator(5.0)])
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
     birthday = models.DateField(null=True, blank=True)
-    lang = models.CharField(max_length=5, choices=[('ru', 'Ru'), ('uz', 'Uz')], default="uz")
+    lang = models.CharField(max_length=5, choices=[('ru', 'Ru'), ('uz', 'Uz')], default="ru")
     orders_count = models.IntegerField(verbose_name="Количество заказов", default=0, validators=[MinValueValidator(0)])
 
     objects = UserManager()

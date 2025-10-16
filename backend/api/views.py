@@ -68,7 +68,7 @@ class ClientReviewViewSet(viewsets.ModelViewSet):
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
-    permission_classes = [IsAuthenticated, IsOrderOwner]
+    # permission_classes = [IsAuthenticated, IsOrderOwner]
 
     def get_queryset(self):
         return Order.objects.filter(client=self.request.user)
@@ -175,7 +175,7 @@ class VerifyOTPView(APIView):
 
 class RegisterView(APIView):
     serializer_class = RegisterSerializer
-    permission_classes = [AllowAny]
+    # permission_classes = [AllowAny]
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -205,7 +205,7 @@ class RegisterView(APIView):
 
 class LoginView(APIView):
     serializer_class = LoginSerializer
-    permission_classes = [AllowAny]
+    # permission_classes = [AllowAny]
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -218,7 +218,7 @@ class LoginView(APIView):
 
 
 class LogoutView(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def post(self, request):
         refresh_token = request.data.get("refresh")
@@ -227,7 +227,7 @@ class LogoutView(APIView):
 
 
 class CheckAuthView(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get(self, request):
         user = request.user
@@ -243,13 +243,13 @@ class CheckAuthView(APIView):
 
 
 class PingView(APIView):
-    permission_classes = [AllowAny]
+    # permission_classes = [AllowAny]
     def get(self, request):
         return Response({"status": "ok", "message": "pong"})
 
 
 class CheckUserView(APIView):
-    permission_classes = [AllowAny]
+    # permission_classes = [AllowAny]
     def post(self, request):
         phone = request.data.get("phone")
 
@@ -271,7 +271,7 @@ class CheckUserView(APIView):
 
 
 class ProfileView(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get(self, request):
         try:
@@ -282,7 +282,7 @@ class ProfileView(APIView):
 
 
 class ResetPasswordView(APIView):
-    permission_classes = [AllowAny]
+    # permission_classes = [AllowAny]
     def post(self, request):
         serializer = ResetPasswordSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -298,7 +298,7 @@ class ResetPasswordView(APIView):
 
 
 class BoostPaymentCreateView(APIView):
-    permission_classes = [AllowAny]
+    # permission_classes = [AllowAny]
     def post(self, request):
         serializer = OrderSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -320,7 +320,7 @@ class BoostPaymentCreateView(APIView):
 
 
 class PaymeCallBackAPIView(PaymeWebHookAPIView):
-    permission_classes = [AllowAny]
+    # permission_classes = [AllowAny]
     def check_perform_transaction(self, params):
         account = self.fetch_account(params)
         self.validate_amount(account, params.get('amount'))
