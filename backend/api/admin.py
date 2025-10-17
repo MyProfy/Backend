@@ -231,8 +231,9 @@ class UserAdmin(ModelAdmin, BaseUserAdmin):
     list_display = (
         'id', 'name', 'phone', 'email', 'role', 'region',
         'executor_rating', 'client_rating', 'avatar_preview',
-        'created_at', 'orders_count'
+        'created_at', 'orders_count', 'created_by_display'
     )
+    readonly_fields = ('created_by_display',)
     list_filter = (PhoneFilter, 'role', 'region', 'gender')
     search_fields = ('name', 'phone', 'email', 'telegram_username')
 
@@ -279,6 +280,11 @@ class UserAdmin(ModelAdmin, BaseUserAdmin):
         if obj.avatar:
             return format_html('<img src="{}" width="50" height="50" style="object-fit: cover;" />', obj.avatar.url)
         return "No Avatar"
+
+    def save_model(self, request, obj, form, change):
+        if not obj.pk:
+            obj.created_by = request.user
+        super().save_model(request, obj, form, change)
 
     avatar_preview.short_description = 'Avatar'
 

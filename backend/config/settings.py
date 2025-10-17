@@ -1,4 +1,5 @@
 import os
+import urllib
 from datetime import timedelta
 from pathlib import Path
 
@@ -192,35 +193,40 @@ UNFOLD = {
         "alt": "MyProfy",
     },
     "COLORS": {
-        "primary": {
-            "50": "#f0fdf4",
-            "100": "#dcfce7",
-            "200": "#bbf7d0",
-            "300": "#86efac",
-            "400": "#4ade80",
-            "500": "#3da03f",
-            "600": "#2e7d32",
-            "700": "#15803d",
-            "800": "#166534",
-            "900": "#14532d",
-            "950": "#052e16",
-        },
-        "accent": {
-            "500": "#3da03f",
-        },
-        "neutral": {
-            "50": "#ffffff",  # ← белый фон
-            "100": "#ffffff",
-            "200": "#f8f9fa",
-            "300": "#f1f3f4",
-            "400": "#e9ecef",
-            "500": "#dee2e6",
-            "600": "#adb5bd",
-            "700": "#6c757d",
-            "800": "#495057",
-            "900": "#343a40",
+    "base": {
+        "50": "#ffffff",   # фон белый
+        "100": "#f8f9fa",
+        "200": "#f1f3f4",
+        "300": "#dee2e6",
+        "400": "#ced4da",
+        "500": "#adb5bd",
+        "600": "#6c757d",
+        "700": "#495057",
+        "800": "#343a40",
+        "900": "#000000",
+    },
+    "primary": {
+        "500": "#3da03f",
+        "600": "#2e7d32",
+        "700": "#15803d",
+    },
+    "font": {
+        "default-light": "#000000",
+        "important-light": "#000000",
+        "subtle-light": "#333333",
+        "default-dark": "#f1f1f1",
+        "important-dark": "#ffffff",
+        "subtle-dark": "#dddddd",
         },
     },
+    "STYLES": [
+    lambda request: "data:text/css;charset=utf-8," + urllib.parse.quote("""
+        input, textarea, select {
+            color: black !important;
+            background-color: white !important;
+        }
+    """),
+    ],
 }
 
 

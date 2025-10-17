@@ -101,6 +101,14 @@ class User(AbstractBaseUser, PermissionsMixin):
         default=0,
         validators=[MinValueValidator(0)]
     )
+    created_by = models.ForeignKey(
+        'self',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='created_users',
+        verbose_name='Кем создан'
+    )
 
     objects = UserManager()
 
@@ -140,6 +148,13 @@ class User(AbstractBaseUser, PermissionsMixin):
             self.client_rating = 0.0
 
         self.save()
+
+    def created_by_display(self):
+        if self.created_by:
+            return self.created_by.name or str(self.created_by.phone)
+        return "Сам"
+
+    created_by_display.short_description = "Кем создан"
 
 class OTP_table(models.Model):
     phone = PhoneNumberField()
