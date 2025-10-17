@@ -1,4 +1,5 @@
 import os
+import urllib
 from datetime import timedelta
 from pathlib import Path
 
@@ -88,7 +89,6 @@ DATABASES = {
     }
 }
 
-
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -103,7 +103,7 @@ USE_TZ = True
 
 APPEND_SLASH = True
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'static'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -179,12 +179,56 @@ CHANNEL_LAYERS = {
     },
 }
 
+STATICFILES_DIRS = [
+    BASE_DIR / 'backend' / 'static',  # 👈 твой путь
+]
+
 UNFOLD = {
-    "SITE_TITLE": "MyProfy Admin",
-    "SITE_HEADER": "Админ-панель MyProfy",
-    "SITE_SUBHEADER": "Управление сервисом",
-    "SITE_SYMBOL": "💼",
+    "THEME": "light",
+    "SITE_TITLE": "MyProfy Админ",
+    "SITE_HEADER": "MyProfy",
+    "SITE_SUBHEADER": "Панель управления",
+    "LOGO": {
+        "url": "/static/images/logo.png",
+        "alt": "MyProfy",
+    },
+    "COLORS": {
+    "base": {
+        "50": "#ffffff",   # фон белый
+        "100": "#f8f9fa",
+        "200": "#f1f3f4",
+        "300": "#dee2e6",
+        "400": "#ced4da",
+        "500": "#adb5bd",
+        "600": "#6c757d",
+        "700": "#495057",
+        "800": "#343a40",
+        "900": "#000000",
+    },
+    "primary": {
+        "500": "#3da03f",
+        "600": "#2e7d32",
+        "700": "#15803d",
+    },
+    "font": {
+        "default-light": "#000000",
+        "important-light": "#000000",
+        "subtle-light": "#333333",
+        "default-dark": "#f1f1f1",
+        "important-dark": "#ffffff",
+        "subtle-dark": "#dddddd",
+        },
+    },
+    "STYLES": [
+    lambda request: "data:text/css;charset=utf-8," + urllib.parse.quote("""
+        input, textarea, select {
+            color: black !important;
+            background-color: white !important;
+        }
+    """),
+    ],
 }
+
 
 INSTALLED_APPS += [
     "unfold.contrib.filters",

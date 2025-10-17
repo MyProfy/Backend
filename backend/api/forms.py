@@ -1,4 +1,5 @@
 from django.contrib.auth.forms import UserCreationForm
+from django import forms
 from django.forms import PasswordInput
 from .models import User
 
@@ -15,6 +16,9 @@ class CustomUserCreationForm(UserCreationForm):
                 "class": "unfold-input w-full",
                 "data-unfold-password-toggle": "true",
             }),
+            'phone': forms.TextInput(attrs={'class': 'unfold-input'}),
+            'email': forms.EmailInput(attrs={'class': 'unfold-input'}),
+            'name': forms.TextInput(attrs={'class': 'unfold-input'}),
         }
 
     def __init__(self, *args, **kwargs):
