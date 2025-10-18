@@ -154,7 +154,8 @@ class RequestOTPView(APIView):
                     "message": str(detail)
                 }, status=status.HTTP_200_OK)
 
-        except Exception:
+        except Exception as e:
+            print(f"{e}")
             return Response({
                 "success": False,
                 "message": "Ошибка при генерации ссылки. Попробуйте позже."

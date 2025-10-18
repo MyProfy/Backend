@@ -539,7 +539,7 @@ class OrderReviewAdmin(ModelAdmin):
 # Custom admin for OTP_table
 @admin.register(OTP_table)
 class OTPAdmin(ModelAdmin):
-    list_display = ('phone', 'code', 'created_at', 'expires_at', 'is_verified')
+    list_display = ('phone', 'code', 'created_at', 'expires_at')
     list_filter = ('created_at',)
     search_fields = ('phone', 'code')
     fieldsets = (
