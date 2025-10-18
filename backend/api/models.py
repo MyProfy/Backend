@@ -1,3 +1,5 @@
+import uuid
+
 from datetime import timedelta
 from decimal import Decimal
 
@@ -53,15 +55,15 @@ class User(AbstractBaseUser, PermissionsMixin):
         ('Город Ташкент', 'Город Ташкент'),
     ]
 
-    name = models.CharField(max_length=255, blank=True, null=True)
+    name = models.CharField(max_length=255, null=True, blank=True)
     email = models.EmailField(unique=False, null=True, blank=True)
     phone = PhoneNumberField(unique=True)
     about_user = models.TextField(null=True, blank=True)
     work_experience = models.FloatField(null=True, blank=True)
     role = models.CharField(
         max_length=50,
-        choices=[('client', 'Client'), ('executor', 'Executor')],
-        default='client'
+        choices=[('клиент', 'Клиент'), ('специалист', 'Специалист')],
+        default='клиент'
     )
     password = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -71,6 +73,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         null=True,
         blank=True
     )
+
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     telegram_username = models.CharField(max_length=255, null=True, blank=True)
@@ -157,6 +160,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     created_by_display.short_description = "Кем создан"
 
 class OTP_table(models.Model):
+    session_id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     phone = PhoneNumberField()
     code = models.CharField(max_length=6)
     created_at = models.DateTimeField(auto_now_add=True)
