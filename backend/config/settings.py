@@ -194,7 +194,7 @@ UNFOLD = {
     },
     "COLORS": {
     "base": {
-        "50": "#ffffff",   # фон белый
+        "50": "#ffffff",
         "100": "#f8f9fa",
         "200": "#f1f3f4",
         "300": "#dee2e6",
@@ -221,9 +221,16 @@ UNFOLD = {
     },
     "STYLES": [
     lambda request: "data:text/css;charset=utf-8," + urllib.parse.quote("""
-        input, textarea, select {
+        input:not([type="checkbox"]),
+        textarea,
+        select {
             color: black !important;
             background-color: white !important;
+        }
+        input[type="checkbox"] {
+            accent-color: #3da03f !important; /* зелёный в стиле твоей темы */
+            width: 18px;
+            height: 18px;
         }
     """),
     ],
@@ -234,6 +241,8 @@ INSTALLED_APPS += [
     "unfold.contrib.filters",
     "unfold.contrib.forms",
 ]
+
+BOT_NAME = "myprofy_bot"
 
 if DEBUG:
     SESSION_COOKIE_DOMAIN = None

@@ -7,6 +7,7 @@ from .views import (
     PaymentViewSet, AdViewSet, OrderReviewsView, BoostViewSet,
     ServiceBoostViewSet, VacancyBoostViewSet,
     RequestOTPView, VerifyOTPView, RegisterView, LoginView, LogoutView, CheckAuthView, BoostPaymentCreateView,
+    GetOTPBySessionView,
 )
 
 router = DefaultRouter()
@@ -34,6 +35,7 @@ urlpatterns = [
     # OTP
     path('auth/otp/request/', RequestOTPView.as_view(), name='request-otp'),
     path('auth/otp/verify/', VerifyOTPView.as_view(), name='verify-otp'),
+    path("auth/otp/session/", GetOTPBySessionView.as_view(), name="otp-by-session"),
 
     # Auth
     path('auth/register/', RegisterView.as_view(), name='register'),

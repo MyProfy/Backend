@@ -1,5 +1,6 @@
 from payme.models import PaymeTransactions
 from payme.types import response
+from rest_framework.decorators import action
 from rest_framework import viewsets
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
@@ -12,7 +13,7 @@ from payme.views import PaymeWebHookAPIView
 
 from .models import (
     User, Category, SubCategory, Service, ExecutorReview, Vacancy, ClientReview, Ad, OrderReview, Boost, ServiceBoost,
-    VacancyBoost, Order
+    VacancyBoost, Order, OTP_table
 )
 
 from .serializers import (
@@ -34,6 +35,23 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
+    @action(detail=False, methods=["patch"], url_path="update_user")
+    def update_user(self, request):
+        telegram_id = request.data.get("telegram_id")
+        telegram_username = request.data.get("telegram_username")
+
+        if not telegram_id:
+            return Response({"success": False, "message": "telegram_id required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = User.objects.filter(telegram_id=telegram_id).first()
+        if not user:
+            return Response({"success": False, "message": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        if telegram_username:
+            user.telegram_username = telegram_username
+            user.save(update_fields=["telegram_username"])
+
+        return Response({"success": True, "message": "User updated"})
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
@@ -105,6 +123,7 @@ class VacancyBoostViewSet(viewsets.ModelViewSet):
 
 class RequestOTPView(APIView):
     permission_classes = [AllowAny]
+
     def post(self, request):
         serializer = RequestOTPSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -113,28 +132,20 @@ class RequestOTPView(APIView):
         if not phone:
             return Response({
                 "success": False,
-                "message": "Iltimos, telefon raqamingizni kiriting"
+                "message": "Введите номер телефона"
             })
 
         try:
-            otp = OTPService.create_otp(phone)
-            return Response({
-                "success": True,
-                "message": "Tasdiqlash kodi muvaffaqiyatli yuborildi",
-                "data": {
-                    "expires_at": otp.expires_at,
-                    "code": otp.code,
-                }
-            }, status=status.HTTP_200_OK)
+            otp_data = OTPService.create_otp(phone)
+            return Response(otp_data, status=status.HTTP_200_OK)
 
         except ValidationError as e:
             detail = e.detail
             if isinstance(detail, dict):
-                message = str(detail.get("error", "Не удалось отправить код."))
                 seconds_left = detail.get("seconds_left", 0)
                 return Response({
                     "success": False,
-                    "message": f"Yangi kodni so'rashdan oldin {seconds_left} soniya kuting.",
+                    "message": f"Подождите {seconds_left} секунд перед повторным запросом.",
                     "data": {"seconds_left": seconds_left}
                 }, status=status.HTTP_200_OK)
             else:
@@ -144,10 +155,39 @@ class RequestOTPView(APIView):
                 }, status=status.HTTP_200_OK)
 
         except Exception as e:
+            print(f"{e}")
             return Response({
                 "success": False,
-                "message": "Kodni yuborishda xatolik yuz berdi. Yana bir bor urinib ko'ring."
-            }, status=status.HTTP_200_OK)
+                "message": "Ошибка при генерации ссылки. Попробуйте позже."
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class GetOTPBySessionView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        session_id = request.query_params.get("session_id")
+        if not session_id:
+            return Response({
+                "success": False,
+                "message": "session_id обязателен"
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        otp = OTP_table.objects.filter(session_id=session_id).last()
+        if not otp:
+            return Response({
+                "success": False,
+                "message": "OTP не найден"
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        return Response({
+            "success": True,
+            "data": {
+                "code": otp.code,
+                "expires_at": otp.expires_at,
+                "phone": str(otp.phone)
+            }
+        }, status=status.HTTP_200_OK)
 
 class VerifyOTPView(APIView):
     permission_classes =  [AllowAny]
@@ -175,7 +215,7 @@ class VerifyOTPView(APIView):
 
 class RegisterView(APIView):
     serializer_class = RegisterSerializer
-    # permission_classes = [AllowAny]
+    permission_classes = [AllowAny]
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
