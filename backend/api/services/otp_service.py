@@ -11,9 +11,8 @@ from config import settings
 
 
 class OTPService:
-
     RESEND_TIMEOUT = 60
-    OTP_LIFETIME = 120
+    OTP_LIFETIME = 300
 
     @staticmethod
     def generate_code(length: int = 4) -> str:
