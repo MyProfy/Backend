@@ -4,11 +4,16 @@ from drf_spectacular.views import SpectacularAPIView
 from django.conf import settings
 from django.conf.urls.static import static
 
+from api.views import PaymeCallBackAPIView
+
 from .docs import ProtectedSpectacularSwaggerView, ProtectedSpectacularRedocView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
+
+    # Payme callback
+    path('payme/callback', PaymeCallBackAPIView.as_view()),
 
     # OpenAPI schema
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),

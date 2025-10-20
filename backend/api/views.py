@@ -144,6 +144,7 @@ class RequestOTPView(APIView):
 
         try:
             otp_data = OTPService.create_otp(phone)
+
             logger.info("RequestOTPView: OTP created successfully for phone: %s", phone)
             return Response(otp_data, status=status.HTTP_200_OK)
 
@@ -171,7 +172,7 @@ class RequestOTPView(APIView):
             logger.error("RequestOTPView: Error generating OTP for phone %s: %s", phone, str(e), exc_info=True)
             return Response({
                 "success": False,
-                "message": f"Ошибка при генерации ссылки. Попробуйте позже. Ошибка: {e}",
+                "message": "Ошибка при генерации ссылки. Попробуйте позже.",
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -181,28 +182,23 @@ class GetOTPBySessionView(APIView):
     def get(self, request):
         session_id = request.query_params.get("session_id")
         if not session_id:
-            logger.warning("GetOTPBySessionView: session_id is missing in request")
             return Response({
                 "success": False,
                 "message": "session_id обязателен"
             }, status=status.HTTP_400_BAD_REQUEST)
 
-        logger.info("GetOTPBySessionView: Looking for OTP with session_id: %s", session_id)
-
-        otp = OTP_table.objects.filter(session_id=session_id).last()
+        otp = OTPService.get_otp_by_session_id(session_id)
         if not otp:
-            logger.warning("GetOTPBySessionView: OTP not found for session_id: %s", session_id)
             return Response({
                 "success": False,
-                "message": "OTP не найден"
+                "message": "OTP не найден или истёк"
             }, status=status.HTTP_404_NOT_FOUND)
 
-        logger.info("GetOTPBySessionView: OTP found for session_id: %s, phone: %s", session_id, otp.phone)
         return Response({
             "success": True,
             "data": {
                 "code": otp.code,
-                "expires_at": otp.expires_at,
+                "expires_at": OTPService.format_expiration(otp.expires_at),
                 "phone": str(otp.phone)
             }
         }, status=status.HTTP_200_OK)
@@ -380,7 +376,7 @@ class ResetPasswordView(APIView):
 
 
 class BoostPaymentCreateView(APIView):
-    # permission_classes = [AllowAny]
+    permission_classes = [AllowAny]
     def post(self, request):
         serializer = OrderSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -402,12 +398,13 @@ class BoostPaymentCreateView(APIView):
 
 
 class PaymeCallBackAPIView(PaymeWebHookAPIView):
-    # permission_classes = [AllowAny]
+    permission_classes = [AllowAny]
     def check_perform_transaction(self, params):
         account = self.fetch_account(params)
         self.validate_amount(account, params.get('amount'))
-
+        print(account)
         result = response.CheckPerformTransaction(allow=True)
+        print(result)
         return result.as_resp()
 
     def handle_successfully_payment(self, params, result, *args, **kwargs):
