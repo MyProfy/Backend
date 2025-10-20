@@ -1,3 +1,5 @@
+import logging
+
 from payme.models import PaymeTransactions
 from payme.types import response
 from rest_framework.decorators import action
@@ -28,6 +30,8 @@ from .permissions import IsOrderOwner
 from .services.otp_service import OTPService
 from .services.payme_service  import PaymeService, payme
 from .services.user_service import UserService
+
+logger = logging.getLogger(__name__)
 
 # --- ViewSets ---
 
@@ -130,32 +134,41 @@ class RequestOTPView(APIView):
         phone = serializer.validated_data.get("phone")
 
         if not phone:
+            logger.warning("RequestOTPView: Phone number is missing in request")
             return Response({
                 "success": False,
                 "message": "Введите номер телефона"
             })
 
+        logger.info("RequestOTPView: OTP request for phone: %s", phone)
+
         try:
             otp_data = OTPService.create_otp(phone)
+            logger.info("RequestOTPView: OTP created successfully for phone: %s", phone)
             return Response(otp_data, status=status.HTTP_200_OK)
 
         except ValidationError as e:
             detail = e.detail
             if isinstance(detail, dict):
                 seconds_left = detail.get("seconds_left", 0)
+                logger.warning(
+                    "RequestOTPView: Too frequent OTP requests for phone: %s. Wait %d seconds",
+                    phone, seconds_left
+                )
                 return Response({
                     "success": False,
                     "message": f"Подождите {seconds_left} секунд перед повторным запросом.",
                     "data": {"seconds_left": seconds_left}
                 }, status=status.HTTP_200_OK)
             else:
+                logger.warning("RequestOTPView: Validation error for phone %s: %s", phone, str(detail))
                 return Response({
                     "success": False,
                     "message": str(detail)
                 }, status=status.HTTP_200_OK)
 
         except Exception as e:
-            print(f"{e}")
+            logger.error("RequestOTPView: Error generating OTP for phone %s: %s", phone, str(e), exc_info=True)
             return Response({
                 "success": False,
                 "message": "Ошибка при генерации ссылки. Попробуйте позже."
@@ -168,18 +181,23 @@ class GetOTPBySessionView(APIView):
     def get(self, request):
         session_id = request.query_params.get("session_id")
         if not session_id:
+            logger.warning("GetOTPBySessionView: session_id is missing in request")
             return Response({
                 "success": False,
                 "message": "session_id обязателен"
             }, status=status.HTTP_400_BAD_REQUEST)
 
+        logger.info("GetOTPBySessionView: Looking for OTP with session_id: %s", session_id)
+
         otp = OTP_table.objects.filter(session_id=session_id).last()
         if not otp:
+            logger.warning("GetOTPBySessionView: OTP not found for session_id: %s", session_id)
             return Response({
                 "success": False,
                 "message": "OTP не найден"
             }, status=status.HTTP_404_NOT_FOUND)
 
+        logger.info("GetOTPBySessionView: OTP found for session_id: %s, phone: %s", session_id, otp.phone)
         return Response({
             "success": True,
             "data": {
@@ -189,8 +207,9 @@ class GetOTPBySessionView(APIView):
             }
         }, status=status.HTTP_200_OK)
 
+
 class VerifyOTPView(APIView):
-    permission_classes =  [AllowAny]
+    permission_classes = [AllowAny]
 
     def post(self, request):
         serializer = VerifyOTPSerializer(data=request.data)
@@ -199,14 +218,18 @@ class VerifyOTPView(APIView):
         phone = serializer.validated_data['phone']
         code = serializer.validated_data['code']
 
+        logger.info("VerifyOTPView: OTP verification attempt for phone: %s", phone)
+
         success, message = OTPService.verify_otp(phone, code)
 
         if success:
+            logger.info("VerifyOTPView: OTP verified successfully for phone: %s", phone)
             return Response({
                 "success": True,
                 "message": message
             }, status=status.HTTP_200_OK)
         else:
+            logger.warning("VerifyOTPView: OTP verification failed for phone: %s. Reason: %s", phone, message)
             return Response({
                 "success": False,
                 "message": message
@@ -216,36 +239,50 @@ class VerifyOTPView(APIView):
 class RegisterView(APIView):
     serializer_class = RegisterSerializer
     permission_classes = [AllowAny]
+
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         data = serializer.validated_data
+        phone = data["phone"]
 
-        user = UserService.register_user(
-            phone=data["phone"],
-            password=data["password"],
-            name=data.get("name"),
-            telegram_id=data.get("telegram_id"),
-            telegram_username=data.get("telegram_username"),
-            gender=data.get("gender"),
-            region=data.get("region"),
-            role=data.get("role", "client"),
-        )
+        logger.info("RegisterView: Registration attempt for phone: %s", phone)
 
-        return Response({
-            "message": "Регистрация успешно завершена!",
-            "user": {
-                "id": user.id,
-                "phone": str(user.phone),
-                "name": user.name,
-                "telegram_id": user.telegram_id,
-                "telegram_username": user.telegram_username,
-                "gender": user.gender,
-                "region": user.region,
-                "role": user.role,
-            }
-        }, status=status.HTTP_201_CREATED)
+        try:
+            user = UserService.register_user(
+                phone=data["phone"],
+                password=data["password"],
+                name=data.get("name"),
+                telegram_id=data.get("telegram_id"),
+                telegram_username=data.get("telegram_username"),
+                gender=data.get("gender"),
+                region=data.get("region"),
+                role=data.get("role", "client"),
+            )
+
+            logger.info("RegisterView: User registered successfully. User ID: %s, Phone: %s", user.id, phone)
+
+            return Response({
+                "message": "Регистрация успешно завершена!",
+                "user": {
+                    "id": user.id,
+                    "phone": str(user.phone),
+                    "name": user.name,
+                    "telegram_id": user.telegram_id,
+                    "telegram_username": user.telegram_username,
+                    "gender": user.gender,
+                    "region": user.region,
+                    "role": user.role,
+                }
+            }, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            logger.error("RegisterView: Registration failed for phone %s: %s", phone, str(e), exc_info=True)
+            return Response({
+                "success": False,
+                "message": "Ошибка при регистрации. Попробуйте позже."
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class LoginView(APIView):
