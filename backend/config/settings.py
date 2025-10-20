@@ -242,7 +242,7 @@ INSTALLED_APPS += [
     "unfold.contrib.forms",
 ]
 
-BOT_NAME = "ansormeduz_testbot"
+BOT_NAME = "myprofy_bot"
 
 if DEBUG:
     SESSION_COOKIE_DOMAIN = None
