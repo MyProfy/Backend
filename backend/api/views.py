@@ -171,7 +171,7 @@ class RequestOTPView(APIView):
             logger.error("RequestOTPView: Error generating OTP for phone %s: %s", phone, str(e), exc_info=True)
             return Response({
                 "success": False,
-                "message": f"Ошибка при генерации ссылки. Попробуйте позже. Ошибка: {e}",
+                "message": f"Ошибка при генерации ссылки. Попробуйте позже.",
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
