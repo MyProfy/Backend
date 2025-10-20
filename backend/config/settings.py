@@ -89,7 +89,6 @@ DATABASES = {
     }
 }
 
-
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -243,7 +242,7 @@ INSTALLED_APPS += [
     "unfold.contrib.forms",
 ]
 
-BOT_NAME = "myprofy_bot"
+BOT_NAME = "ansormeduz_testbot"
 
 if DEBUG:
     SESSION_COOKIE_DOMAIN = None

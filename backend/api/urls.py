@@ -7,7 +7,7 @@ from .views import (
     PaymentViewSet, AdViewSet, OrderReviewsView, BoostViewSet,
     ServiceBoostViewSet, VacancyBoostViewSet,
     RequestOTPView, VerifyOTPView, RegisterView, LoginView, LogoutView, CheckAuthView, BoostPaymentCreateView,
-    GetOTPBySessionView,
+    GetOTPBySessionView
 )
 
 router = DefaultRouter()

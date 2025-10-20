@@ -1,25 +1,31 @@
 import random
 import uuid
-
 from datetime import timedelta
-from django.utils import timezone
-from rest_framework.exceptions import ValidationError
-from api.models import OTP_table
-from django.utils.formats import date_format
 
+from django.utils import timezone
+from django.utils.formats import date_format
+from rest_framework.exceptions import ValidationError
+
+from api.models import OTP_table
 from config import settings
 
+
 class OTPService:
+
     RESEND_TIMEOUT = 60
     OTP_LIFETIME = 120
 
     @staticmethod
-    def generate_code(length=4) -> str:
-        """6-digit code generation"""
+    def generate_code(length: int = 4) -> str:
         return ''.join(random.choices('0123456789', k=length))
 
     @staticmethod
-    def create_otp(phone):
+    def format_expiration(expires_at):
+        local_time = timezone.localtime(expires_at)
+        return date_format(local_time, format="d.m.Y H:i", use_l10n=True)
+
+    @staticmethod
+    def create_otp(phone: str):
         now = timezone.now()
         resend_limit = now - timedelta(seconds=OTPService.RESEND_TIMEOUT)
         session_id = str(uuid.uuid4())
@@ -42,8 +48,7 @@ class OTPService:
             session_id=session_id
         )
 
-        local_time = timezone.localtime(expires_at)
-        formatted_time = date_format(local_time, format="d.m.Y H:i", use_l10n=True)
+        formatted_time = OTPService.format_expiration(expires_at)
 
         return {
             "success": True,
@@ -62,8 +67,7 @@ class OTPService:
         return otp
 
     @staticmethod
-    def verify_otp(phone, code):
-        """Checks the validity of the OTP and deletes it if verified"""
+    def verify_otp(phone: str, code: str):
         otp = OTP_table.objects.filter(phone=phone, code=code).last()
 
         if not otp:
@@ -74,5 +78,4 @@ class OTPService:
             return False, "Code expired"
 
         otp.delete()
-
         return True, "Code verified"
