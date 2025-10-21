@@ -1,5 +1,6 @@
 import logging
 
+from django.core.exceptions import ValidationError
 from payme.models import PaymeTransactions
 from payme.types import response
 from rest_framework.decorators import action
@@ -10,6 +11,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
+from rest_framework.exceptions import ValidationError as DRFValidationError
 
 from payme.views import PaymeWebHookAPIView
 
@@ -237,7 +239,7 @@ class RegisterView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        serializer = RegisterSerializer(data=request.data)
+        serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         data = serializer.validated_data
@@ -257,9 +259,14 @@ class RegisterView(APIView):
                 role=data.get("role", "client"),
             )
 
-            logger.info("RegisterView: User registered successfully. User ID: %s, Phone: %s", user.id, phone)
+            logger.info(
+                "RegisterView: User registered successfully. User ID: %s, Phone: %s",
+                user.id,
+                phone,
+            )
 
             return Response({
+                "success": True,
                 "message": "Регистрация успешно завершена!",
                 "user": {
                     "id": user.id,
@@ -273,13 +280,35 @@ class RegisterView(APIView):
                 }
             }, status=status.HTTP_201_CREATED)
 
+        except (ValidationError, DRFValidationError) as e:
+            logger.warning("RegisterView: Validation error for phone %s: %s", phone, str(e))
+
+            if hasattr(e, "detail"):
+                if isinstance(e.detail, (list, tuple)):
+                    message = e.detail[0]
+                elif isinstance(e.detail, dict):
+                    message = next(iter(e.detail.values()))[0]
+                else:
+                    message = e.detail
+            else:
+                message = str(e)
+
+            return Response({
+                "success": False,
+                "message": str(message),
+            }, status=status.HTTP_400_BAD_REQUEST)
+
         except Exception as e:
-            logger.error("RegisterView: Registration failed for phone %s: %s", phone, str(e), exc_info=True)
+            logger.error(
+                "RegisterView: Registration failed for phone %s: %s",
+                phone,
+                str(e),
+                exc_info=True
+            )
             return Response({
                 "success": False,
                 "message": "Ошибка при регистрации. Попробуйте позже."
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
 class LoginView(APIView):
     serializer_class = LoginSerializer
