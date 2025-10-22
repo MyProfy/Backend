@@ -233,6 +233,27 @@ class VerifyOTPView(APIView):
                 "message": message
             }, status=status.HTTP_400_BAD_REQUEST)
 
+class AttachTelegramView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        session_id = request.data.get("session_id")
+        telegram_id = request.data.get("telegram_id")
+        telegram_username = request.data.get("telegram_username")
+
+        if not session_id or not telegram_id:
+            return Response({
+                "success": False,
+                "message": "session_id и telegram_id обязательны"
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        success, message = OTPService.attach_telegram_data(session_id, telegram_id, telegram_username)
+
+        return Response({
+            "success": success,
+            "message": message
+        }, status=status.HTTP_200_OK if success else status.HTTP_404_NOT_FOUND)
+
 
 class RegisterView(APIView):
     serializer_class = RegisterSerializer

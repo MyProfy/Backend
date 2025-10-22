@@ -180,7 +180,7 @@ CHANNEL_LAYERS = {
 }
 
 STATICFILES_DIRS = [
-    BASE_DIR / 'backend' / 'static',  # 👈 твой путь
+    BASE_DIR / 'backend' / 'static',
 ]
 
 UNFOLD = {
