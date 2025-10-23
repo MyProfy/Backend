@@ -7,42 +7,26 @@ from api.models import OTP_table, User
 
 
 class UserService:
-    @staticmethod
-    def register_user(
-            phone: str,
-            password: str,
-            telegram_id: int = None,
-            telegram_username: str = None,
-            name: str = None,
-            gender: str = None,
-            region: str = None,
-            role: str = "client",
-    ):
-        """Register user with verification OTP"""
 
+    @staticmethod
+    def register_user(phone: str, password: str, **kwargs):
         otp = OTP_table.objects.filter(phone=phone).order_by('-created_at').first()
         if not otp:
             raise ValidationError("Сначала подтвердите номер телефона.")
-
         if otp.expires_at < timezone.now():
             raise ValidationError("Код подтверждения истёк. Запросите новый.")
-
         if User.objects.filter(phone=phone).exists():
             raise ValidationError("Пользователь с таким номером уже зарегистрирован.")
 
         user = User.objects.create_user(
             phone=phone,
             password=password,
-            name=name or "",
-            telegram_id=telegram_id,
-            telegram_username=telegram_username,
-            gender=gender,
-            region=region,
-            role=role,
+            telegram_id=otp.telegram_id,
+            telegram_username=otp.telegram_username,
+            **kwargs
         )
 
         otp.delete()
-
         return user
 
     @staticmethod

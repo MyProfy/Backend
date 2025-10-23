@@ -166,6 +166,9 @@ class OTP_table(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField()
 
+    telegram_id = models.BigIntegerField(null=True, blank=True)
+    telegram_username = models.CharField(max_length=255, null=True, blank=True)
+
     class Meta:
         db_table = 'otp_table'
         verbose_name = "OTP таблица"

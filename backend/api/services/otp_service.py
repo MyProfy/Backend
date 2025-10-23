@@ -78,3 +78,19 @@ class OTPService:
 
         otp.delete()
         return True, "Code verified"
+
+    @staticmethod
+    def attach_telegram_data(session_id: str, telegram_id: int, telegram_username: str = None):
+        otp = OTP_table.objects.filter(session_id=session_id).first()
+
+        if not otp:
+            return False, "OTP с таким session_id не найден."
+
+        if timezone.now() > otp.expires_at:
+            return False, "OTP истёк."
+
+        otp.telegram_id = telegram_id
+        otp.telegram_username = telegram_username
+        otp.save(update_fields=["telegram_id", "telegram_username"])
+
+        return True, "Telegram данные успешно сохранены."
