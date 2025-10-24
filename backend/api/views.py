@@ -7,6 +7,7 @@ from rest_framework.decorators import action
 from rest_framework import viewsets
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
+from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -127,7 +128,7 @@ class VacancyBoostViewSet(viewsets.ModelViewSet):
 
 # --- APIViews ---
 
-class RequestOTPView(APIView):
+class RequestOTPView(GenericAPIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
@@ -178,7 +179,7 @@ class RequestOTPView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class GetOTPBySessionView(APIView):
+class GetOTPBySessionView(GenericAPIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
@@ -206,7 +207,7 @@ class GetOTPBySessionView(APIView):
         }, status=status.HTTP_200_OK)
 
 
-class VerifyOTPView(APIView):
+class VerifyOTPView(GenericAPIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
@@ -233,7 +234,7 @@ class VerifyOTPView(APIView):
                 "message": message
             }, status=status.HTTP_400_BAD_REQUEST)
 
-class AttachTelegramView(APIView):
+class AttachTelegramView(GenericAPIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
@@ -345,7 +346,7 @@ class LoginView(APIView):
         return Response(tokens, status=status.HTTP_200_OK)
 
 
-class LogoutView(APIView):
+class LogoutView(GenericAPIView):
     # permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -354,7 +355,7 @@ class LogoutView(APIView):
         return Response({"message": "Successfully logged out."}, status=status.HTTP_200_OK)
 
 
-class CheckAuthView(APIView):
+class CheckAuthView(GenericAPIView):
     # permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -452,9 +453,7 @@ class PaymeCallBackAPIView(PaymeWebHookAPIView):
     def check_perform_transaction(self, params):
         account = self.fetch_account(params)
         self.validate_amount(account, params.get('amount'))
-        print(account)
         result = response.CheckPerformTransaction(allow=True)
-        print(result)
         return result.as_resp()
 
     def handle_successfully_payment(self, params, result, *args, **kwargs):
