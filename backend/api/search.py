@@ -2,6 +2,7 @@ from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
+from functools import reduce
 
 try:
     from transliterate import translit
@@ -12,6 +13,7 @@ from .models import Vacancy, Service, Category, SubCategory
 
 
 class GlobalSearchAPIView(GenericAPIView):
+
     def get(self, request):
         query = request.GET.get("q", "").strip()
         if not query:
@@ -40,10 +42,9 @@ class GlobalSearchAPIView(GenericAPIView):
                 error_message = f"searchquery_error: {e}"
 
             def perform_search(model, fields):
-                vector = sum(
-                    (SearchVector(f, config="russian") + SearchVector(f, config="simple"))
-                    for f in fields
-                )
+                vectors = [SearchVector(f, config="russian") + SearchVector(f, config="simple") for f in fields]
+                vector = reduce(lambda a, b: a + b, vectors)
+
                 queryset = (
                     model.objects
                     .annotate(rank=SearchRank(vector, search_query))
