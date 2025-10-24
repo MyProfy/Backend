@@ -27,7 +27,7 @@ from .serializers import (
     LoginSerializer, ResetPasswordSerializer, OrderSerializer, PaymentSerializer
 )
 
-from .permissions import IsOrderOwner
+from .permissions import IsOwner
 
 from .services.otp_service import OTPService
 from .services.payme_service  import PaymeService, payme

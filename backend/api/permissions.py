@@ -1,6 +1,6 @@
 from rest_framework.permissions import BasePermission
 
-class IsOrderOwner(BasePermission):
+class IsOwner(BasePermission):
     """
     Custom permission for Owner Order
     """
