@@ -208,10 +208,10 @@ class RegisterSerializer(serializers.Serializer):
         required=False,
         allow_null=True
     )
-    region = serializers.CharField(required=False, allow_blank=True)
+    region = serializers.ChoiceField(choices=User.REGIONS, required=False, allow_blank=True)
     role = serializers.ChoiceField(
-        choices=[('client', 'Client'), ('executor', 'Executor')],
-        default='client'
+        choices=[('клиент', 'Клиент'), ('специалист', 'Специалист')],
+        default='клиент'
     )
 
     def validate_phone(self, value):
