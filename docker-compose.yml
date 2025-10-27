@@ -1,9 +1,12 @@
+version: "3.9"
+
 services:
   web:
     build:
       context: .
       dockerfile: backend/Dockerfile
     container_name: myprofy_backend
+    restart: always
     volumes:
       - ./backend:/app
     env_file:
@@ -23,7 +26,6 @@ services:
         sleep 5;
       done &&
       echo '🚀 Elasticsearch is up, building indexes...' &&
-      python manage.py search_index --rebuild --noinput &&
       python manage.py search_index --rebuild --noinput &&
       gunicorn config.wsgi:application --bind 0.0.0.0:8000
       "
@@ -48,6 +50,7 @@ services:
       context: .
       dockerfile: elasticsearch/Dockerfile
     container_name: myprofy_elasticsearch
+    restart: always
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
