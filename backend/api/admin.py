@@ -338,6 +338,8 @@ class ServiceAdmin(ModelAdmin):
     search_fields = ('title', 'description')
     inlines = [OrderServiceInline]
     list_editable = ('moderation',)
+    filter_horizontal = ('sub_categories',)
+    filter_vertical = ('sub_categories',)
     fieldsets = (
         (None, {
             'fields': ('title', 'description', 'category', 'sub_categories', 'price', 'executor', 'moderation')
@@ -374,10 +376,12 @@ class ServiceAdmin(ModelAdmin):
     boost_priority_display.short_description = 'Boost Priority'
 
     def get_first_image(self, obj):
-        first_image = obj.images.url if obj.images else None
-        if first_image and first_image.image:
-            return format_html('<img src="{}" width="50" height="50" style="object-fit: cover;" />',
-                               first_image.image.url)
+        first_image_obj = obj.images.first()  # RelatedManager → первый объект
+        if first_image_obj and first_image_obj.image:
+            return format_html(
+                '<img src="{}" width="50" height="50" style="object-fit: cover;" />',
+                first_image_obj.image.url
+            )
         return "No Image"
 
     get_first_image.short_description = 'Image'
