@@ -204,7 +204,7 @@ class RegisterSerializer(serializers.Serializer):
     telegram_id = serializers.IntegerField(required=False, allow_null=True)
     telegram_username = serializers.CharField(required=False, allow_blank=True)
     gender = serializers.ChoiceField(
-        choices=[('male', 'Male'), ('female', 'Female')],
+        choices=[('мужской', 'Мужской'), ('женский', 'Женский')],
         required=False,
         allow_null=True
     )
