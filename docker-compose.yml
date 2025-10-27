@@ -26,7 +26,7 @@ services:
         sleep 5;
       done &&
       echo '🚀 Elasticsearch is up, building indexes...' &&
-      python manage.py search_index --rebuild --noinput &&
+      python manage.py search_index --rebuild -f &&
       gunicorn config.wsgi:application --bind 0.0.0.0:8000
       "
 
