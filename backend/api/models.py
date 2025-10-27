@@ -80,7 +80,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     telegram_id = models.BigIntegerField(unique=True, null=True, blank=True)
     gender = models.CharField(
         max_length=10,
-        choices=[('male', 'Male'), ('female', 'Female')],
+        choices=[('мужской', 'Мужской'), ('женский', 'Женский')],
         null=True,
         blank=True
     )
