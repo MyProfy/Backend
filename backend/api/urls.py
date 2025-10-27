@@ -2,7 +2,6 @@ from rest_framework.routers import DefaultRouter
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenRefreshView
 
-from .search import GlobalSearchAPIView
 from .views import (
     UserViewSet, CategoryViewSet, SubCategoryViewSet, ServiceViewSet,
     ExecutorReviewViewSet, VacancyViewSet, ClientReviewViewSet, OrderViewSet,
@@ -30,9 +29,6 @@ router.register(r'vacancy-boosts', VacancyBoostViewSet, basename='vacancy-boosts
 
 urlpatterns = [
     path('', include(router.urls)),
-
-    # Search
-    path('search/', GlobalSearchAPIView.as_view()),
 
     # Payme
     path('order/create/', BoostPaymentCreateView.as_view()),

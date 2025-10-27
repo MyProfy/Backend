@@ -12,6 +12,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
 
+    # Search
+    path('api/search/', include('api.search.urls')),
+
     # Payme callback
     path('payme/callback', PaymeCallBackAPIView.as_view()),
 

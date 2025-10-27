@@ -6,19 +6,22 @@ from pathlib import Path
 from .env import (
     SECRET_KEY,
     DEBUG,
-    ALLOWED_HOSTS,
+    # ALLOWED_HOSTS,
     POSTGRES_DB,
     POSTGRES_USER,
     POSTGRES_PASSWORD,
     POSTGRES_HOST,
-    POSTGRES_PORT
+    POSTGRES_PORT,
+    ELASTICSEARCH_HOST,
+    ELASTICSEARCH_PORT
 )
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = SECRET_KEY
 DEBUG = DEBUG
-ALLOWED_HOSTS = ALLOWED_HOSTS
+# ALLOWED_HOSTS = ALLOWED_HOSTS
+ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [
     'unfold',
@@ -38,6 +41,9 @@ INSTALLED_APPS = [
     'corsheaders',
     'payme',
     'import_export',
+    'django_elasticsearch_dsl',
+    'django_elasticsearch_dsl_drf',
+    'api.search',
 ]
 
 AUTHENTICATION_BACKENDS = [
@@ -249,6 +255,12 @@ INSTALLED_APPS += [
     "unfold.contrib.filters",
     "unfold.contrib.forms",
 ]
+
+ELASTICSEARCH_DSL = {
+    'default': {
+        'hosts': f'http://{ELASTICSEARCH_HOST}:{ELASTICSEARCH_PORT}'
+    },
+}
 
 BOT_NAME = "myprofy_bot"
 
