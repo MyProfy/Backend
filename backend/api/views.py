@@ -175,7 +175,7 @@ class RequestOTPView(GenericAPIView):
             logger.error("RequestOTPView: Error generating OTP for phone %s: %s", phone, str(e), exc_info=True)
             return Response({
                 "success": False,
-                "message": f"Ошибка: {e}\n",
+                "message": "Ошибка при генерации ссылки. Попробуйте позже.",
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -329,7 +329,8 @@ class RegisterView(APIView):
             )
             return Response({
                 "success": False,
-                "message": "Ошибка при регистрации. Попробуйте позже."
+                "message": "Ошибка при регистрации. Попробуйте позже.\n"
+                           f"Error: {e}"
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class LoginView(APIView):
