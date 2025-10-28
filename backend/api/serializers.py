@@ -9,48 +9,17 @@ from .models import (
     VacancyBoost, Order
 )
 
-class UserSerializer(serializers.ModelSerializer):
-    created_at = serializers.DateTimeField(format="%d.%m.%Y %H:%M", read_only=True)
-    class Meta:
-        model = User
-        fields = [
-            'id', 'name', 'phone', 'about_user', 'role', 'region',
-            'executor_rating', 'work_experience', 'email',  'client_rating', 'telegram_username',
-            'telegram_id', 'gender', 'avatar', 'birthday', 'lang', 'created_at', 'orders_count', 'is_trusted'
-        ]
-        read_only_fields = ['id', 'created_at', 'executor_rating', 'client_rating']
-
-class CategorySerializer(serializers.ModelSerializer):
-    created_at = serializers.DateTimeField(format="%d.%m.%Y %H:%M", read_only=True)
+class VacancySerializer(serializers.ModelSerializer):
+    price = serializers.DecimalField(max_digits=10, decimal_places=2, coerce_to_string=False)
+    moderation_display = serializers.CharField(source='get_moderation_display', read_only=True)
 
     class Meta:
-        model = Category
+        model = Vacancy
         fields = [
-            'id',
-            'title',
-            'display_ru',
-            'display_uz',
-            'service_count',
-            'created_at',
+            'id', 'title', 'description', 'price', 'category', 'sub_category',
+            'client', 'images', 'moderation', 'moderation_display', 'boost'
         ]
-        read_only_fields = ['id', 'service_count', 'created_at']
-
-class SubCategorySerializer(serializers.ModelSerializer):
-    created_at = serializers.DateTimeField(format="%d.%m.%Y %H:%M", read_only=True)
-    category_name = serializers.CharField(source='category.title', read_only=True)
-
-    class Meta:
-        model = SubCategory
-        fields = [
-            'id',
-            'category',
-            'category_name',
-            'title',
-            'display_ru',
-            'display_uz',
-            'created_at',
-        ]
-        read_only_fields = ['id', 'category_name', 'service_count', 'created_at']
+        read_only_fields = ['id', 'moderation_display']
 
 class ServiceSerializer(serializers.ModelSerializer):
     created_at = serializers.DateTimeField(format="%d.%m.%Y %H:%M", read_only=True)
@@ -91,6 +60,53 @@ class ServiceSerializer(serializers.ModelSerializer):
             'boost_name',
             'created_at',
         ]
+
+class UserSerializer(serializers.ModelSerializer):
+    created_at = serializers.DateTimeField(format="%d.%m.%Y %H:%M", read_only=True)
+    vacancies = VacancySerializer(many=True, read_only=True)
+    services = ServiceSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = User
+        fields = [
+            'id', 'name', 'phone', 'about_user', 'role', 'region',
+            'executor_rating', 'work_experience', 'email',  'client_rating', 'telegram_username',
+            'telegram_id', 'gender', 'avatar', 'birthday', 'lang', 'created_at', 'orders_count', 'is_trusted',
+            'vacancies', 'services'
+        ]
+        read_only_fields = ['id', 'created_at', 'executor_rating', 'client_rating']
+
+class CategorySerializer(serializers.ModelSerializer):
+    created_at = serializers.DateTimeField(format="%d.%m.%Y %H:%M", read_only=True)
+
+    class Meta:
+        model = Category
+        fields = [
+            'id',
+            'title',
+            'display_ru',
+            'display_uz',
+            'service_count',
+            'created_at',
+        ]
+        read_only_fields = ['id', 'service_count', 'created_at']
+
+class SubCategorySerializer(serializers.ModelSerializer):
+    created_at = serializers.DateTimeField(format="%d.%m.%Y %H:%M", read_only=True)
+    category_name = serializers.CharField(source='category.title', read_only=True)
+
+    class Meta:
+        model = SubCategory
+        fields = [
+            'id',
+            'category',
+            'category_name',
+            'title',
+            'display_ru',
+            'display_uz',
+            'created_at',
+        ]
+        read_only_fields = ['id', 'category_name', 'service_count', 'created_at']
 
 class ExecutorReviewSerializer(serializers.ModelSerializer):
     created_at = serializers.DateTimeField(format="%d.%m.%Y %H:%M", read_only=True)
