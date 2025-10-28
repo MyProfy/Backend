@@ -329,8 +329,7 @@ class RegisterView(APIView):
             )
             return Response({
                 "success": False,
-                "message": "Ошибка при регистрации. Попробуйте позже.\n"
-                           f"Error: {e}"
+                "message": "Ошибка при регистрации. Попробуйте позже."
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class LoginView(APIView):

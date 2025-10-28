@@ -201,8 +201,6 @@ class RegisterSerializer(serializers.Serializer):
     phone = PhoneNumberField()
     password = serializers.CharField(write_only=True)
     name = serializers.CharField(required=False, allow_blank=True)
-    telegram_id = serializers.IntegerField(required=False, allow_null=True)
-    telegram_username = serializers.CharField(required=False, allow_blank=True)
     gender = serializers.ChoiceField(
         choices=[('мужской', 'Мужской'), ('женский', 'Женский')],
         required=False,
