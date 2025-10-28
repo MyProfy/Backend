@@ -14,6 +14,9 @@ class UserService:
         if User.objects.filter(phone=phone).exists():
             raise ValidationError("Пользователь с таким номером уже зарегистрирован.")
 
+        kwargs.pop("telegram_id", None)
+        kwargs.pop("telegram_username", None)
+
         user = User.objects.create_user(
             phone=phone,
             password=password,
