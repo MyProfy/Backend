@@ -11,10 +11,6 @@ class UserService:
     @staticmethod
     def register_user(phone: str, password: str, **kwargs):
         otp = OTP_table.objects.filter(phone=phone).order_by('-created_at').first()
-        if not otp:
-            raise ValidationError("Сначала подтвердите номер телефона.")
-        if otp.expires_at < timezone.now():
-            raise ValidationError("Код подтверждения истёк. Запросите новый.")
         if User.objects.filter(phone=phone).exists():
             raise ValidationError("Пользователь с таким номером уже зарегистрирован.")
 

@@ -76,7 +76,6 @@ class OTPService:
             otp.delete()
             return False, "Code expired"
 
-        otp.delete()
         return True, "Code verified"
 
     @staticmethod
