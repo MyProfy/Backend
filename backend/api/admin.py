@@ -328,12 +328,12 @@ class SubCategoryAdmin(ModelAdmin):
 
     export_to_excel.short_description = "Export selected to Excel"
 
-
-# Custom admin for Service
 @admin.register(Service)
 class ServiceAdmin(ModelAdmin):
     list_display = (
-    'id', 'title', 'category', 'price', 'executor', 'get_first_image', 'boost_priority_display', 'moderation')
+        'id', 'title', 'category', 'price', 'executor',
+        'get_first_image', 'boost_priority_display', 'moderation'
+    )
     list_filter = (ServiceNameFilter, 'category', 'executor', 'moderation')
     search_fields = ('title', 'description')
     inlines = [OrderServiceInline]
@@ -372,17 +372,16 @@ class ServiceAdmin(ModelAdmin):
     def boost_priority_display(self, obj):
         priority = obj.boost_priority
         return "Turbo (2)" if priority == 2 else "Top (1)" if priority == 1 else "None (0)"
-
     boost_priority_display.short_description = 'Boost Priority'
 
     def get_first_image(self, obj):
-        image_url = obj.images.url if obj.images else (
-            obj.vacancy_images.first().image.url if obj.vacancy_images.exists() else None
-        )
-        if image_url:
-            return format_html('<img src="{}" width="50" height="50" style="object-fit: cover;" />', image_url)
+        image_obj = obj.images.first()
+        if image_obj and image_obj.image:
+            return format_html(
+                '<img src="{}" width="50" height="50" style="object-fit: cover; border-radius: 6px;" />',
+                image_obj.image.url
+            )
         return "No Image"
-
     get_first_image.short_description = 'Image'
 
     export_to_excel.short_description = "Export selected to Excel"
