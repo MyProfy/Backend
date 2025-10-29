@@ -33,6 +33,7 @@ from .permissions import IsOwner
 from .services.otp_service import OTPService
 from .services.payme_service  import PaymeService, payme
 from .services.user_service import UserService
+from .services.vacancy_notification import notify_vacancy
 
 logger = logging.getLogger(__name__)
 
@@ -83,6 +84,10 @@ class ExecutorReviewViewSet(viewsets.ModelViewSet):
 class VacancyViewSet(viewsets.ModelViewSet):
     queryset = Vacancy.objects.all()
     serializer_class = VacancySerializer
+
+    def perform_create(self, serializer):
+        vacancy = serializer.save()
+        notify_vacancy(vacancy)
 
 
 class ClientReviewViewSet(viewsets.ModelViewSet):

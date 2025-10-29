@@ -15,7 +15,9 @@ from .env import (
     ELASTICSEARCH_HOST,
     ELASTICSEARCH_PORT,
     PAYME_ID,
-    PAYME_KEY
+    PAYME_KEY,
+    BOT_SERVICE_URL,
+    BOT_SERVICE_TOKEN
 )
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,6 +25,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = SECRET_KEY
 DEBUG = DEBUG
 ALLOWED_HOSTS = ALLOWED_HOSTS
+
+BOT_SERVICE_URL = BOT_SERVICE_URL
+BOT_SERVICE_TOKEN = BOT_SERVICE_TOKEN
 
 INSTALLED_APPS = [
     'unfold',
