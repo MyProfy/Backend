@@ -13,7 +13,9 @@ from .env import (
     POSTGRES_HOST,
     POSTGRES_PORT,
     ELASTICSEARCH_HOST,
-    ELASTICSEARCH_PORT
+    ELASTICSEARCH_PORT,
+    PAYME_ID,
+    PAYME_KEY
 )
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -145,8 +147,8 @@ CORS_EXPOSE_HEADERS = ['Set-Cookie', 'Content-Type', 'X-CSRFToken']
 # CSRF_COOKIE_SAMESITE = 'None'
 
 # Payme settings
-PAYME_ID = "685d093f15461d903a41b09f"
-PAYME_KEY = "Za0Dx2cPp%%ZDnvbAPexFeyBacxx@G5OO2rD"
+PAYME_ID = PAYME_ID
+PAYME_KEY = PAYME_KEY
 PAYME_ACCOUNT_FIELD = "boost_payment_id"
 PAYME_AMOUNT_FIELD = "price"
 PAYME_ACCOUNT_MODEL = "api.models.BoostPayment"
@@ -269,3 +271,61 @@ if DEBUG:
     CSRF_COOKIE_DOMAIN = None
     SESSION_COOKIE_SECURE = False
     CSRF_COOKIE_SECURE = False
+
+LOG_DIR = BASE_DIR / "logs"
+LOG_DIR.mkdir(exist_ok=True)
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+
+    "formatters": {
+        "verbose": {
+            "format": "[{asctime}] [{levelname}] {name} | {message}",
+            "style": "{",
+        },
+        "simple": {
+            "format": "{levelname}: {message}",
+            "style": "{",
+        },
+    },
+
+    "handlers": {
+        "file": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": LOG_DIR / "django.log",
+            "formatter": "verbose",
+            "encoding": "utf-8",
+        },
+        "error_file": {
+            "level": "ERROR",
+            "class": "logging.FileHandler",
+            "filename": LOG_DIR / "errors.log",
+            "formatter": "verbose",
+            "encoding": "utf-8",
+        },
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+        },
+    },
+
+    "loggers": {
+        "django": {
+            "handlers": ["file", "error_file", "console"],
+            "level": "INFO",
+            "propagate": True,
+        },
+        "django.request": {
+            "handlers": ["error_file", "console"],
+            "level": "ERROR",
+            "propagate": False,
+        },
+        "app": {
+            "handlers": ["file", "error_file", "console"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
+    },
+}

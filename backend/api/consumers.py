@@ -11,9 +11,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.room_group_name = f'chat_{self.room_name}'
         self.user = self.scope['user']  # Provided by AuthMiddlewareStack
 
-        if self.user.is_anonymous:
-            await self.close()
-            return
+        # if self.user.is_anonymous:
+        #     await self.close()
+        #     return
 
         await self.ensure_room_exists()
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
