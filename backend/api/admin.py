@@ -376,12 +376,11 @@ class ServiceAdmin(ModelAdmin):
     boost_priority_display.short_description = 'Boost Priority'
 
     def get_first_image(self, obj):
-        first_image_obj = obj.images.first()  # RelatedManager → первый объект
-        if first_image_obj and first_image_obj.image:
-            return format_html(
-                '<img src="{}" width="50" height="50" style="object-fit: cover;" />',
-                first_image_obj.image.url
-            )
+        image_url = obj.images.url if obj.images else (
+            obj.vacancy_images.first().image.url if obj.vacancy_images.exists() else None
+        )
+        if image_url:
+            return format_html('<img src="{}" width="50" height="50" style="object-fit: cover;" />', image_url)
         return "No Image"
 
     get_first_image.short_description = 'Image'
