@@ -466,10 +466,11 @@ class VacancyAdmin(ModelAdmin):
     boost_priority_display.short_description = 'Boost Priority'
 
     def get_first_image(self, obj):
-        first_image = obj.images.url if obj.images else None
-        if first_image and first_image.image:
-            return format_html('<img src="{}" width="50" height="50" style="object-fit: cover;" />',
-                               first_image.image.url)
+        image_url = obj.images.url if obj.images else (
+            obj.vacancy_images.first().image.url if obj.vacancy_images.exists() else None
+        )
+        if image_url:
+            return format_html('<img src="{}" width="50" height="50" style="object-fit: cover;" />', image_url)
         return "No Image"
 
     get_first_image.short_description = 'Image'
