@@ -29,4 +29,4 @@ def notify_vacancy(vacancy):
         response.raise_for_status()
         print(f"✅ Уведомление о вакансии {vacancy.id} отправлено боту")
     except requests.RequestException as e:
-        print(f"⚠Ошибка при отправке уведомления о вакансии: {e}")
+        print(f"Ошибка при отправке уведомления о вакансии: {e}")
