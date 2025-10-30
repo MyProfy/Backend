@@ -12,6 +12,10 @@ from .models import (
 class VacancySerializer(serializers.ModelSerializer):
     price = serializers.DecimalField(max_digits=10, decimal_places=2, coerce_to_string=False)
     moderation_display = serializers.CharField(source='get_moderation_display', read_only=True)
+    images = serializers.PrimaryKeyRelatedField(
+        many=True,
+        read_only=True,
+    )
 
     class Meta:
         model = Vacancy
@@ -25,6 +29,10 @@ class ServiceSerializer(serializers.ModelSerializer):
     created_at = serializers.DateTimeField(format="%d.%m.%Y %H:%M", read_only=True)
     category_name = serializers.CharField(source='category.title', read_only=True)
     price = serializers.DecimalField(max_digits=10, decimal_places=2, coerce_to_string=False, read_only=True)
+    images = serializers.PrimaryKeyRelatedField(
+        many=True,
+        read_only=True,
+    )
     sub_categories_names = serializers.SlugRelatedField(
         source='sub_categories',
         many=True,
