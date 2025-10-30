@@ -21,12 +21,12 @@ def notify_vacancy(vacancy):
         "description": vacancy.description,
         "price": float(vacancy.price),
         "username": getattr(client, "telegram_username", None),
-        "phone": getattr(client, "phone", None),
+        "phone": str(getattr(client, "phone", "")) if getattr(client, "phone", None) else None,
     }
 
     try:
         response = requests.post(url, json=data, headers=headers, timeout=5)
         response.raise_for_status()
-        print(f"Уведомление о вакансии {vacancy.id} отправлено боту")
+        print(f"✅ Уведомление о вакансии {vacancy.id} отправлено боту")
     except requests.RequestException as e:
-        print(f"Ошибка при отправке уведомления о вакансии: {e}")
+        print(f"⚠Ошибка при отправке уведомления о вакансии: {e}")
