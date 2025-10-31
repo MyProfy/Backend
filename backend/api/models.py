@@ -219,6 +219,7 @@ class Service(models.Model):
     executor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='services')
     moderation = models.CharField(max_length=20, choices=MODERATION_CHOICES, default='Pending', null=True, blank=True)
     boost = models.ForeignKey('Boost', on_delete=models.CASCADE, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'services'
