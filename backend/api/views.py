@@ -58,6 +58,7 @@ class ServiceViewSet(viewsets.ModelViewSet):
     serializer_class = ServiceSerializer
 
     def perform_create(self, serializer):
+        logger.info(f"✅ VALIDATED DATA: {serializer.validated_data}")
         service = serializer.save()
         logger.info(f"Создан сервис {service.id} от пользователя {service.client}")
         notify_service(service)
