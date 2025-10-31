@@ -33,7 +33,7 @@ from .permissions import IsOwner
 from .services.otp_service import OTPService
 from .services.payme_service  import PaymeService, payme
 from .services.user_service import UserService
-from .services.vacancy_notification import notify_vacancy
+from .services.vacancy_notification import notify_vacancy, notify_service
 
 logger = logging.getLogger("app")
 
@@ -42,24 +42,6 @@ logger = logging.getLogger("app")
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-
-    @action(detail=False, methods=["patch"], url_path="update_user")
-    def update_user(self, request):
-        telegram_id = request.data.get("telegram_id")
-        telegram_username = request.data.get("telegram_username")
-
-        if not telegram_id:
-            return Response({"success": False, "message": "telegram_id required"}, status=status.HTTP_400_BAD_REQUEST)
-
-        user = User.objects.filter(telegram_id=telegram_id).first()
-        if not user:
-            return Response({"success": False, "message": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        if telegram_username:
-            user.telegram_username = telegram_username
-            user.save(update_fields=["telegram_username"])
-
-        return Response({"success": True, "message": "User updated"})
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
@@ -74,6 +56,11 @@ class SubCategoryViewSet(viewsets.ModelViewSet):
 class ServiceViewSet(viewsets.ModelViewSet):
     queryset = Service.objects.all()
     serializer_class = ServiceSerializer
+
+    def perform_create(self, serializer):
+        service = serializer.save()
+        logger.info(f"Создан сервис {service.id} от пользователя {service.client}")
+        notify_service(service)
 
 
 class ExecutorReviewViewSet(viewsets.ModelViewSet):
