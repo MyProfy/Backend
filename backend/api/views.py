@@ -35,7 +35,7 @@ from .services.payme_service  import PaymeService, payme
 from .services.user_service import UserService
 from .services.vacancy_notification import notify_vacancy
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("app")
 
 # --- ViewSets ---
 
@@ -87,6 +87,7 @@ class VacancyViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         vacancy = serializer.save()
+        logger.info(f"Создана вакансия {vacancy.id} от пользователя {vacancy.client}")
         notify_vacancy(vacancy)
 
 
