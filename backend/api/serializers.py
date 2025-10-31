@@ -30,6 +30,10 @@ class VacancySerializer(serializers.ModelSerializer):
 class ServiceSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source='category.title', read_only=True)
     price = serializers.DecimalField(max_digits=10, decimal_places=2, coerce_to_string=False)
+    sub_categories = serializers.PrimaryKeyRelatedField(
+        queryset=SubCategory.objects.all(),
+        many=True
+    )
     sub_categories_names = serializers.SlugRelatedField(
         source='sub_categories',
         many=True,
@@ -63,6 +67,7 @@ class ServiceSerializer(serializers.ModelSerializer):
             'sub_categories_names',
             'boost_name'
         ]
+
 
     def get_images(self, obj):
         if obj.images:
