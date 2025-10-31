@@ -28,7 +28,6 @@ class VacancySerializer(serializers.ModelSerializer):
         return None
 
 class ServiceSerializer(serializers.ModelSerializer):
-    created_at = serializers.DateTimeField(format="%d.%m.%Y %H:%M", read_only=True)
     category_name = serializers.CharField(source='category.title', read_only=True)
     price = serializers.DecimalField(max_digits=10, decimal_places=2, coerce_to_string=False)
     sub_categories_names = serializers.SlugRelatedField(
@@ -56,15 +55,13 @@ class ServiceSerializer(serializers.ModelSerializer):
             'moderation',
             'boost',
             'boost_name',
-            'created_at',
         ]
         read_only_fields = [
             'id',
             'executor_name',
             'category_name',
             'sub_categories_names',
-            'boost_name',
-            'created_at',
+            'boost_name'
         ]
 
     def get_images(self, obj):
