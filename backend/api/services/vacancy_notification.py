@@ -46,7 +46,6 @@ def notify_service(service):
         "X-Internal-Token": BOT_SERVICE_TOKEN,
     }
 
-    # Получаем связанные данные безопасно
     executor = getattr(service, "executor", None)
     category = getattr(service, "category", None)
     boost = getattr(service, "boost", None)
