@@ -59,7 +59,6 @@ class ServiceViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         service = serializer.save()
-        serializer.save_m2m()
         logger.info(f"Создан сервис {service.id} от пользователя {service.executor}")
         notify_service(service)
 
