@@ -68,12 +68,6 @@ class ServiceSerializer(serializers.ModelSerializer):
             'boost_name'
         ]
 
-    def validate(self, attrs):
-        import logging
-        logger = logging.getLogger("app")
-        logger.warning(f"🟡 VALIDATED DATA: {attrs}")
-        return attrs
-
     def get_images(self, obj):
         if obj.images:
             return obj.images.url
