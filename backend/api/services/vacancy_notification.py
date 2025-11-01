@@ -56,7 +56,7 @@ def notify_service(service):
         "description": service.description,
         "price": float(service.price) if service.price else 0,
         "category_name": getattr(category, "title", None),
-        "executor_name": getattr(executor, "phone", None),
+        "executor_name": str(getattr(executor, "phone", None)),
         "sub_categories_names": [sub.title for sub in getattr(service, "sub_categories", []).all()] if hasattr(service, "sub_categories") else [],
         "boost_name": getattr(boost, "name", None)
     }
